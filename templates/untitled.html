@@ -1,0 +1,13 @@
+<script src="{{url_for('static', filename='func.js')}}"></script>  
+<script src="{{url_for('static', filename='func.js')}}"></script>  
+      <script type="text/javascript">
+        $(document).ready(function()
+        {
+          $('.message a').click(function()
+          {
+            $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
+            $('#idMensajeError').hide();
+          });
+        });
+      </script> 
+

@@ -9,13 +9,15 @@ from flask import render_template, redirect, url_for, session
 #from flask_mysqldb import MySQL
 import bcrypt 
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder = '../templates', static_folder='../static')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://invitado:invitado@localhost/app_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
+#Semilla para encriptamiento
+semilla = bcrypt.gensalt()
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -81,11 +83,15 @@ def delete_task(id):
   return task_schema.jsonify(task)
 
 
-@app.route('/', methods=['GET'])
-def index():
-    return jsonify({'message': 'Welcome to my API'})
 
+@app.route("/")
+def main():
+  return render_template('ingresar.html')
 
+#Defino la ruta principal
+@app.route('/registro')
+def registro():
+  return render_template('registro.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
