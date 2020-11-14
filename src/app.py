@@ -1,17 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify,request #Contiene toda la informacion del cliente
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
 #se importan librerias para pagina web
 from flask import render_template, redirect, url_for, session
+#from flask_wtf import FlaskForm
+#from wtforms import Form, BooleanField, StringField, PasswordField, validators, SubmitField
+#from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+
 #from flask_mysqldb import MySQL
 import bcrypt 
 
 app = Flask(__name__, template_folder = '../templates', static_folder='../static')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://invitado:invitado@localhost/app_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET KEY'] = '966a98e7b6fd851217f6f90db9f0e1da'
 
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
@@ -20,78 +25,39 @@ ma = Marshmallow(app)
 semilla = bcrypt.gensalt()
 
 class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(70), unique=True)
-    description = db.Column(db.String(100))
-    
-    def __init__(self, title, description):
-        self.title = title
-        self.description = description
+    id        = db.Column(db.Integer    , primary_key=True)
+    username  = db.Column(db.String(26) , unique=True, nullable=False)
+    email     = db.Column(db.String(100), unique=True, nullable=False)
+    password  = db.Column(db.String(60) , nullable=False)
+#    def __init__(self, title, description):
+#        self.title = title
+#        self.description = description
 
 db.create_all()
 
 class TaskSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'title', 'description')
+        fields = ('id', 'username', 'email', 'password')
 
 
 task_schema = TaskSchema()
 tasks_schema = TaskSchema(many=True)
 
-@app.route('/tasks', methods=['Post'])
-def create_task():
-  title = request.json['title']
-  description = request.json['description']
 
-  new_task= Task(title, description)
-
-  db.session.add(new_task)
-  db.session.commit()
-
-  return task_schema.jsonify(new_task)
-
-@app.route('/tasks', methods=['GET'])
-def get_tasks():
-  all_tasks = Task.query.all()
-  result = tasks_schema.dump(all_tasks)
-  return jsonify(result)
-
-@app.route('/tasks/<id>', methods=['GET'])
-def get_task(id):
-  task = Task.query.get(id)
-  return task_schema.jsonify(task)
-
-@app.route('/tasks/<id>', methods=['PUT'])
-def update_task(id):
-  task = Task.query.get(id)
-
-  title = request.json['title']
-  description = request.json['description']
-
-  task.title = title
-  task.description = description
-
-  db.session.commit()
-
-  return task_schema.jsonify(task)
-
-@app.route('/tasks/<id>', methods=['DELETE'])
-def delete_task(id):
-  task = Task.query.get(id)
-  db.session.delete(task)
-  db.session.commit()
-  return task_schema.jsonify(task)
-
-
-
-@app.route("/")
-def main():
-  return render_template('ingresar.html')
 
 #Defino la ruta principal
-@app.route('/registro')
-def registro():
-  return render_template('registro.html')
+@app.route('/registro', methods=['GET', 'POST'])
+def log():
+    if request.method == 'POST':
+      name = request.form['username']
+      email = request.form['password']
+      password = request.form['email']
+      print(name)
+      print(email)
+      print(password)
+    return render_template('registro.html')#, form = Form)
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -9,6 +9,11 @@
       <button>login</button>
       <p class="message">Not registered? <a href="registro">Create an account</a></p>
     </form>
+    <form method=post>
+    {{ form.csrf_token }}
+    {{ form.name }}
+    <input type=submit>
+</form>
   </div>
 </div> 
 <html>
