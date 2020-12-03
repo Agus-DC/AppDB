@@ -1,16 +1,29 @@
-<html>
-<body>
+{% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <div class="login-page">
   <div class="form">
-    <form class="login-form">
-      <input type="text" placeholder="username"/>
-      <input type="password" placeholder="password"/>
-      <button>login</button>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.username.label }}  
+            {{ form.username }}<br>
+            {% for error in form.username.errors %}
+            <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div>
+            {{ form.password.label }}
+            {{ form.password }}<br>
+            {% for error in form.password.errors %}
+            <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div>
+            <button style="background: #4CAF50;background-color:#FFFEEE">{{ form.submit()}}</button>
+        </div>
       <p class="message">Not registered? <a href="registro">Create an account</a></p>
     </form>
-    <form method=post>
+    <h1>{{info}}</h1>
+  </div>
 </div>
-</div> 
-<html>
-<body>
+{% endblock %}
