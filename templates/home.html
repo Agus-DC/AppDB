@@ -1,11 +1,18 @@
 {% block content %}
+<html xmlns="http://www.w3.org/1999/xhtml">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <div class="login-page">
   <div class="form">
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
+        <script type="text/javascript" >
+          function preventBack(){window.history.backward();}
+          setTimeout("preventBack()", 0);
+          window.onunload=function(){null};
+        </script>
         <div>
-
+          <p class="message"><a href="/logout">log out?</a></p>
+          <p class="message"><a href= "/upload">upload</a></p>
         </div>
     </form>
     <h1>{{info}}</h1>

@@ -17,7 +17,23 @@ class usuario(SO.SQLObject):
     email      = SO.StringCol(length = 100, default=None)
     passwo     = SO.StringCol(length = 15,  default=None)
     albums     = SO.ForeignKey('Album', default=None)
+    status     = False
 
+    def login(self, status):
+        self.status = status
+        return True
+
+    def get_islogin(self):
+        return self.status
+
+    def getname_userlogin(self):
+        if (self.satus == True):
+            return self.username
+        else:
+            return None   
+
+    def get_username(self):
+        return self.username
 
     def set_password(password):
         return generate_password_hash(password)
