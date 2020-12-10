@@ -5,14 +5,10 @@
   <div class="form">
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
-        <script type="text/javascript" >
-          function preventBack(){window.history.backward();}
-          setTimeout("preventBack()", 0);
-          window.onunload=function(){null};
-        </script>
         <div>
           <p class="message"><a href="/logout">log out?</a></p>
           <p class="message"><a href= "/upload">upload</a></p>
+          <img src="{{url_for('get_file' , filename=image_name)}}" style="width:48px;height:48px;">
         </div>
     </form>
     <h1>{{info}}</h1>

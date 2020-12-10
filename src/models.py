@@ -16,7 +16,7 @@ class usuario(SO.SQLObject):
     username   = SO.StringCol(length = 25, default=None)
     email      = SO.StringCol(length = 100, default=None)
     passwo     = SO.StringCol(length = 15,  default=None)
-    albums     = SO.ForeignKey('Album', default=None)
+    albums     = SO.RelatedJoin('Album')
     status     = False
 
     def login(self, status):
@@ -73,4 +73,4 @@ class usuario(SO.SQLObject):
 
 class Album(SO.SQLObject):
     title = SO.StringCol(length=160, varchar=True)
-    #usuario = SO.RelatedJoin('usuario')
+    usuario = SO.RelatedJoin('usuario')
