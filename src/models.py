@@ -15,9 +15,12 @@ class usuario(SO.SQLObject):
 
     username   = SO.StringCol(length = 25, default=None)
     email      = SO.StringCol(length = 100, default=None)
-    passwo     = SO.StringCol(length = 15,  default=None)
-    albums     = SO.RelatedJoin('Album')
+    passwo     = SO.StringCol(length = 100,  default=None)
+    planta     = SO.RelatedJoin('Planta')
     status     = False
+
+    def get_id(self):
+        return (self.id)
 
     def login(self, status):
         self.status = status
@@ -54,23 +57,40 @@ class usuario(SO.SQLObject):
         for a in usuario.selectBy(email=email):
             print(a.email)
             return (a.email != '')            
-            #<span style="color: red;">{{ error }}</span>
-
-            #Si el usuario coincide tengo que ingresar, sino tengo que mostrar datos erroneos y reintentar
-        
 
 
-        #print("{}: {}".format(usuario.username, usuario.select(usuario.q.username==name)))
-        #nombre = usuario.select(usuario.q.username==name)
-        #print(usuario.username)
-        #for name in usuario.select(orderBy=usuario.q.username, limit=10):
-        #    print(usuario.username)
-#            i = 1
-#            for album in Album.select(Album.q.artist == artist):
-#                print('\t{}) {}'.format(i, album.title))
-#                i += 1
-#            print()
+
+class Planta(SO.SQLObject):
+    permiso    = SO.StringCol(length=10, varchar=True)
+    especie    = SO.StringCol(length=25, default=None)
+    album      = SO.ForeignKey('Album', default=None)
+    idexcgroup   = SO.ForeignKey('ExcGroup', default=1) #va a ser el numero de planta
+    usuario    = SO.RelatedJoin('usuario')
+
+    def get_Planta(id):
+        for a in Planta.selectBy(id=id):
+            print (a.especie)
+            return a
+
+    def albumcheck(self):
+        return self.album
+
+    #busco el numero de plantas de cada usuario entrando por usuario
+    def listadoPlantas(self, usuario):
+        for usuario in self.select(orderBy=self.id):
+            return print(self.especie + ':')
 
 class Album(SO.SQLObject):
-    title = SO.StringCol(length=160, varchar=True)
-    usuario = SO.RelatedJoin('usuario')
+    albumname = SO.StringCol(length=50, varchar=True)
+    imagename = SO.StringCol(length=50, varchar=True)
+    ruta      = SO.StringCol(length=100,varchar=True)
+    timestamp = SO.StringCol(length=50, varchar=True)
+
+    def getimage(self, id):
+        return self.name
+
+class ExcGroup(SO.SQLObject):
+    planta              = SO.StringCol(length = 5, default=None)
+    imagenesUnlock      = SO.StringCol(length = 5, default=None)
+    condicionessUnlock  = SO.StringCol(length = 5, default=None)
+    usuario             = SO.RelatedJoin('usuario')

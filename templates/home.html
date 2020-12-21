@@ -7,7 +7,10 @@
         {{ form.hidden_tag() }}
         <div>
           <p class="message"><a href="/logout">log out?</a></p>
-          <p class="message"><a href= "/upload">upload</a></p>
+          <p class="message"><a href={{route}}>upload</a></p>
+
+
+
           <img src="{{url_for('get_file' , filename=image_name)}}" style="width:48px;height:48px;">
         </div>
     </form>

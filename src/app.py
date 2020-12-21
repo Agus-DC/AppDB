@@ -6,7 +6,7 @@ from flask import Flask, jsonify,request #Contiene toda la informacion del clien
 from flask import render_template, redirect, url_for, session, send_from_directory, escape, request, Response
 
 from forms import SignupForm, LoginForm #Publicaciones #PostForm, 
-from models import usuario, Album#, Pubs
+from models import usuario, Planta, Album, ExcGroup
 from markupsafe import escape
 from werkzeug.utils import secure_filename
 
@@ -67,16 +67,38 @@ def profile(name):
     print(user1)
     if user1 and user1.get_islogin() and (user1.get_username() == name):
       info = "BIENVENIDO " + name
-      return render_template('home.html', form=form, info = info, image_name = "pp.jpeg");
+      #Cargo las tablas en funcion del nombre
+      
+      #creo las plantas del usuario
+      planta = Planta(permiso = 'PRI', especie = "tomate", )
+      user1.addPlanta(planta)
+
+      if planta.albumcheck() == None:
+        print("El album esta vacio")
+      #else:
+      #  print(planta.Album.getimage(1))
+      return render_template('home.html', form=form, info = info, route = name + "/upload", image_name = "pp.jpeg");
     #con el nombre tengo que saber que imagen tengo cargada, porque te tiene que decir, tengo que ir a la BD  
     return "user not sign in"
 
 
 
 
-@app.route('/upload', methods=['GET', 'POST'])
-def upload():
+@app.route('/<name>/upload', methods=['GET', 'POST'])
+def upload(name):
+    array = []
+    #tengo que pasarle a upload.html el listado de plantas para ese usuario
+    #Busco las plantas que tiene el usuario
+    user1 = usuario.get_user(name)
     
+    i = 0
+    for user1.get_id in user1.planta:
+      planta = Planta.get_Planta(user1.get_id)
+      array.insert(i, planta.especie)
+      print(array)
+
+
+    # ---------------------------------------------------------------------------------
     if request.method == 'POST':      
       
       #Si no existe el input o no tiene la validacion correcta, o el formulario no tiene la parte que corresponde al archivo
@@ -92,22 +114,20 @@ def upload():
         print ("Your file has been uploaded " + filename)
 
 
-        album = Album(title=filename)#, usuario=user1)
-        
- 
+        #validacion de existencia de especie de planta
+        especieIngresada = request.form['especie_form']
+        if especieIngresada not in array:
+          return "Especie no encontrada"
+
         return redirect(url_for("profile", name = session [ 'username' ]))
       return "file not allowed"
-
-    return """ 
-<form method="POST" enctype = "multipart/form-data">
-<input type = "file" name="ourfile">
-<input type = "submit" value="UPLOAD">
-</form>
-"""
+    return render_template('upload.html', especie = array, cantidad = len(array))
+    
 
 
 @app.route("/uploads/<filename>")
 def get_file(filename):
+  album = Album(ruta = UPLOAD_FOLDER, imagename = filename, albumname = "albumname", timestamp = 'HH:MM:SS')
   return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 
@@ -155,11 +175,19 @@ if __name__ == "__main__":
     # connection.debug = True
 
     # borro las tablas si ya existian
-    #usuario.dropTable(ifExists=True)
-    #Album.dropTable(ifExists=True)
+#    Planta.dropTable()
+#    ExcGroup.dropTable()
+#    Album.dropTable()
+#    usuario.dropTable()
 
     # creo las tablas
-    #Album.createTable()
-    #usuario.createTable()
+ #   usuario.createTable();
+ #   Album.createTable()
+ #   ExcGroup.createTable();
+ #   Planta.createTable();
+    
+
+    ExcGroup(planta = "maria")
     #album = Album(title = "empty") #La tabla usuarios no puede referenciar una tabla albums vacia
+    
     app.run(debug=True)

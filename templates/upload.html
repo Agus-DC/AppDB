@@ -1,0 +1,19 @@
+<form method="POST" enctype = "multipart/form-data">
+	<input type = "file" name="ourfile">
+	<p class="message"><a>Ingresar la especie de la planta: </a></p>
+	<input type = "text" name="especie_form">
+	<input type = "submit" value="UPLOAD">
+	  <link rel="stylesheet" href="{{ url_for('static', filename='style2.css') }}">
+	  <nav>
+	    <ul id="menu">
+	      <li><a href="">especie</a>
+	        <ul>
+				{% for i in especie %}
+            		<li><a href="">{{i}}</a></li>
+            	{% endfor %}
+	        </ul> 
+	      </li>
+	    </ul>
+	  </nav>
+</form>
+
