@@ -63,9 +63,15 @@ class usuario(SO.SQLObject):
 class Planta(SO.SQLObject):
     permiso    = SO.StringCol(length=10, varchar=True)
     especie    = SO.StringCol(length=25, default=None)
-    album      = SO.ForeignKey('Album', default=None)
-    idexcgroup   = SO.ForeignKey('ExcGroup', default=1) #va a ser el numero de planta
     usuario    = SO.RelatedJoin('usuario')
+
+    def check_plantaName(especie):
+        for a in Planta.selectBy(especie=especie):
+            print(a.especie)
+            return (a.especie != '')     
+
+    def get_id(self):
+        return (self.id)
 
     def get_Planta(id):
         for a in Planta.selectBy(id=id):
@@ -80,17 +86,48 @@ class Planta(SO.SQLObject):
         for usuario in self.select(orderBy=self.id):
             return print(self.especie + ':')
 
+
 class Album(SO.SQLObject):
     albumname = SO.StringCol(length=50, varchar=True)
     imagename = SO.StringCol(length=50, varchar=True)
     ruta      = SO.StringCol(length=100,varchar=True)
     timestamp = SO.StringCol(length=50, varchar=True)
+    planta    = SO.ForeignKey('Planta', default=None)
 
-    def getimage(self, id):
-        return self.name
+    def get_images(planta):
+        i = 1
+        array = []
+        for j in Album.select(Album.q.planta==planta):
+            #print(i)
+            #print(j)
+            #print('\t{}) {}'.format(i, j.imagename))
+            #print(planta.especie)
+            #print(j.albumname)
+            if (planta.especie == j.albumname):
+                array.insert(i, j.imagename)
+                i += 1
+            #    print("ENTRO")
+        #print(array)        
+        return array
+
+    def get_imageCount(self, planta):
+        for planta in self.select(orderBy=self.q.albumname):
+   
+            print("Estoy por imprimir planta")
+            print(planta)
+            
+            print("Estoy por imprimir planta self")
+            print(self.planta)
+            
+            for planta in self.select(orderBy=self.q.albumname):
+                print("Estoy por imprimir cantidad")
+                return ("{}".format(self.select(SO.AND(self.q.planta == planta, self.planta.especie == 'tomate')).count()))
+    
+    def Album():
+        return Album
 
 class ExcGroup(SO.SQLObject):
-    planta              = SO.StringCol(length = 5, default=None)
     imagenesUnlock      = SO.StringCol(length = 5, default=None)
     condicionessUnlock  = SO.StringCol(length = 5, default=None)
+    planta              = SO.ForeignKey('Planta', default=None) #va a ser el numero de planta, en default habia un 1
     usuario             = SO.RelatedJoin('usuario')

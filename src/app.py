@@ -9,6 +9,8 @@ from forms import SignupForm, LoginForm #Publicaciones #PostForm,
 from models import usuario, Planta, Album, ExcGroup
 from markupsafe import escape
 from werkzeug.utils import secure_filename
+from datetime import datetime
+import time
 
 import sqlobject as SO
 
@@ -64,22 +66,62 @@ def index():
 def profile(name):
     form = LoginForm()
     user1 = usuario.get_user(name)
+    array = []
+    i = 0
     print(user1)
     if user1 and user1.get_islogin() and (user1.get_username() == name):
       info = "BIENVENIDO " + name
-      #Cargo las tablas en funcion del nombre
       
-      #creo las plantas del usuario
-      planta = Planta(permiso = 'PRI', especie = "tomate", )
-      user1.addPlanta(planta)
+      
+      #consulto si el usuario tiene plantas
+      if user1.planta:
+        print("hay plantas! ")
+        #print(user1.planta)
+        planta_id_user1 = user1.planta[0].id            #Planta 0 del usuario 1        
+        planta1 = Planta.get_Planta(planta_id_user1) 
 
-      if planta.albumcheck() == None:
-        print("El album esta vacio")
-      #else:
-      #  print(planta.Album.getimage(1))
-      return render_template('home.html', form=form, info = info, route = name + "/upload", image_name = "pp.jpeg");
-    #con el nombre tengo que saber que imagen tengo cargada, porque te tiene que decir, tengo que ir a la BD  
+        print("Paso1")
+        print(planta1)
+        
+
+        album1 = Album.get_images(planta1)
+
+
+        print("Paso1.2")
+        print(album1[0])
+        print(album1[1])
+        print(album1[2])
+
+
+        number = len(album1)
+        
+        print("PasoNumber")
+        print(number)
+
+
+      else:
+        print("no hay plantas!")
+
+
+
+      if request.method == 'POST': 
+      #Solo hay que agregar la planta si no esta agregada
+        especie =request.form['especie']
+        permiso = request.form['seguridad']
+
+        if((Planta.check_plantaName(especie) == True) ):
+          info='Planta already added, retry'
+        else:
+          planta = Planta(especie = especie, permiso = permiso)
+          user1.addPlanta(planta)
+          print("Planta agregada")
+          info='Planta agregada"'
+
+
+
+      return render_template('home.html', form=form, info = info, route = name + "/upload", images = album1, numberImage = len(album1))
     return "user not sign in"
+
 
 
 
@@ -94,10 +136,15 @@ def upload(name):
     i = 0
     for user1.get_id in user1.planta:
       planta = Planta.get_Planta(user1.get_id)
-      array.insert(i, planta.especie)
-      print(array)
+      array.insert(i, planta.especie)  
+    print(array)
 
-
+    # Para obtener el id de la planta en la cual cargar imagenes
+    if user1.planta:
+      print("hay plantas! ")
+      #print(user1.planta)
+      planta_id_user1 = user1.planta[0].id            #Planta 0 del usuario 1        
+      planta1 = Planta.get_Planta(planta_id_user1)
     # ---------------------------------------------------------------------------------
     if request.method == 'POST':      
       
@@ -113,21 +160,24 @@ def upload(name):
         f.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
         print ("Your file has been uploaded " + filename)
 
-
         #validacion de existencia de especie de planta
         especieIngresada = request.form['especie_form']
         if especieIngresada not in array:
           return "Especie no encontrada"
 
+        album = Album(planta = planta1 ,ruta = UPLOAD_FOLDER, imagename = filename, albumname = especieIngresada, timestamp = time.ctime())
+
         return redirect(url_for("profile", name = session [ 'username' ]))
       return "file not allowed"
-    return render_template('upload.html', especie = array, cantidad = len(array))
+    return render_template('upload.html', especie = array)
     
+
+
+
 
 
 @app.route("/uploads/<filename>")
 def get_file(filename):
-  album = Album(ruta = UPLOAD_FOLDER, imagename = filename, albumname = "albumname", timestamp = 'HH:MM:SS')
   return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 
@@ -175,19 +225,21 @@ if __name__ == "__main__":
     # connection.debug = True
 
     # borro las tablas si ya existian
-#    Planta.dropTable()
+    
 #    ExcGroup.dropTable()
 #    Album.dropTable()
+#    Planta.dropTable()
 #    usuario.dropTable()
 
     # creo las tablas
- #   usuario.createTable();
- #   Album.createTable()
- #   ExcGroup.createTable();
- #   Planta.createTable();
+#    usuario.createTable();
+#    Planta.createTable();
+#    Album.createTable()
+#    ExcGroup.createTable();
     
-
-    ExcGroup(planta = "maria")
+    
+    #ExcGroup()
+    #Planta()
     #album = Album(title = "empty") #La tabla usuarios no puede referenciar una tabla albums vacia
     
     app.run(debug=True)
