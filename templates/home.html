@@ -1,55 +1,54 @@
-{% block content %}
-<html xmlns="http://www.w3.org/1999/xhtml">
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<div class="login-page">
+<!DOCTYPE html>
+<html lang="es">  
+<head>  
+</head>
+    <meta charset="UTF-8">
+    <title>lightSlider</title>
+    <script
+  src="https://code.jquery.com/jquery-1.11.0.js"
+  integrity="sha256-zgND4db0iXaO7v4CLBIYHGoIIudWI5hRMQrPB20j0Qw="
+  crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='lightslider.js') }}"></script>
+    <link rel = "stylesheet" href = "{{ url_for('static', filename='lightslider.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <div>
-          <p class="message"><a href="/logout">log out?</a></p>
-          <p class="message"><a href={{route}}>upload</a></p>          
-        </div>
-    </form>
+</head>
 
-    <form action="" method="post" novalidate>
-      {{ form.hidden_tag() }}
-      <div>
-        <input type="text" id="especie" name="especie" placeholder="especie"/>
-        <input type="text" id="seguridad" name="seguridad" placeholder="seguridad"/>
-        <button>add</button>
-      </div>
-    </form>
 
-    <form action="" method="post" novalidate>
-      {% for i in images %}
-          <img src="{{url_for('get_file' , filename=i)}}" style="width:48px;height:48px;">
-            <script> 
-                function sleep(milliseconds) { 
-                    let timeStart = new Date().getTime(); 
-                    while (true) { 
-                        let elapsedTime = new Date().getTime() - timeStart; 
-                        if (elapsedTime > milliseconds) { 
-                            break; 
-                        } 
-                    } 
-                } 
-          
-                console.log("Hello World"); 
-                console.log("Sleeping for 5000 milliseconds"); 
-          
-                // sleep for 5000 miliiseconds 
-                sleep(1000); 
-          
-                console.log("Sleep completed successfully"); 
-            </script>                 
-      {% endfor %}
-     </form> 
-    
-    <h1>{{info}}</h1>
+
+<body>
+  <div class = "banner">
+    <ul id="lightSlider" class="gallery">
+    <li data-thumb="../uploads/1.jpg"> <a href="#"> <img src="../uploads/1.jpg" /> </a> </li>
+    <li data-thumb="../uploads/2.jpg"> <a href="#"> <img src="../uploads/2.jpg" /> </a> </li>
+    <li data-thumb="../uploads/3.jpg"> <a href="#"> <img src="../uploads/3.jpg" /> </a> </li>
+    <li data-thumb="../uploads/4.jpg"> <a href="#"> <img src="../uploads/4.jpg" /> </a> </li>  
+    </ul>
   </div>
 
-{% endblock %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+    $('#lightSlider').lightSlider({
+      item:1,
+      auto:true,
+      loop:true,
+      speed:10,
+      pause:500,
+      controls:true,
+      keyPress: true,
+      gallery:true,
 
+      enableTouch:true,
+      enableDrag:true,
+      freeMove:false,
+      swipeThreshold:40,
+      responsive: [],
+    }); 
+    });
+  </script>
+
+</body>  
+</html> 
 
 
 
