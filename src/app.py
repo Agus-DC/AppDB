@@ -97,7 +97,7 @@ def profile(name):
         
         print("PasoNumber")
         print(number)
-
+        print("GET")
 
       else:
         print("no hay plantas!")
@@ -108,17 +108,24 @@ def profile(name):
       #Solo hay que agregar la planta si no esta agregada
         especie =request.form['especie']
         permiso = request.form['seguridad']
-
-        if((Planta.check_plantaName(especie) == True) ):
-          info='Planta already added, retry'
+        print("POST")
+        if 'one' not in request.form:
+          print("post album")
+          return render_template('timelapse.html', route = name + "/upload", images = album1)
         else:
-          planta = Planta(especie = especie, permiso = permiso)
-          user1.addPlanta(planta)
-          print("Planta agregada")
-          info='Planta agregada"'
-
-
-
+          print("post especie")#tengo que poder diferenciar si se agrega nueva planta o se ve el timelapse
+          if(especie != ""):
+            if((Planta.check_plantaName(especie) == False)):
+              planta = Planta(especie = especie, permiso = permiso)
+              user1.addPlanta(planta)
+              print("Planta agregada")
+              info='Planta agregada"'
+            else:
+              info='Planta already added, retry'
+            return render_template('home.html', form=form, info = info, route = name + "/upload", images = album1, numberImage = len(album1))
+          else:
+            info='No se agrego planta'
+            return render_template('home.html', form=form, info = info, route = name + "/upload", images = album1, numberImage = len(album1))
       return render_template('home.html', form=form, info = info, route = name + "/upload", images = album1, numberImage = len(album1))
     return "user not sign in"
 
@@ -180,6 +187,10 @@ def upload(name):
 def get_file(filename):
   return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
+
+@app.route("/timelapse/")
+def timelapse():
+  return render_template("timelapse.html", images = images)
 
 
 #Defino la ruta principal
