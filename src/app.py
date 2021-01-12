@@ -25,7 +25,6 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.secret_key = 'cualquier cadena aleatoria'
 
 
-
 def allow_file(filename):
   return "." in filename and filename.rsplit("." , 1)[1] in ALLOWED_EXTENSIONS
 
@@ -67,8 +66,30 @@ def profile(name):
     form = LoginForm()
     user1 = usuario.get_user(name)
     array = []
+    arrayPlanta = []
+    planta1 = []
+    album1 = []
+    albunesTotales = []
+    indice = []
     i = 0
+    ii = 0
+    j = 0
+    k =0
+    aux2 = 0
+
     print(user1)
+
+
+  
+    for user1.get_id in user1.planta:
+      planta = Planta.get_Planta(user1.get_id)
+      arrayPlanta.insert(j, planta.especie)  
+    
+    arrayPlanta.reverse()
+    print("Las plantas que hay para el usuario son: ", arrayPlanta)
+    cantPlantas = len(arrayPlanta)
+    print("cantidad de plantas: ", cantPlantas)
+
     if user1 and user1.get_islogin() and (user1.get_username() == name):
       info = "BIENVENIDO " + name
       
@@ -77,28 +98,32 @@ def profile(name):
       if user1.planta:
         print("hay plantas! ")
         #print(user1.planta)
-        planta_id_user1 = user1.planta[0].id            #Planta 0 del usuario 1        
-        planta1 = Planta.get_Planta(planta_id_user1) 
+        for z in arrayPlanta:
+          planta_id_user1 = user1.planta[i].id            #Planta 0 del usuario 1        
+          planta1.insert(i, Planta.get_Planta(planta_id_user1))
 
-        print("Paso1")
-        print(planta1)
+          print("Paso1")
+          print(planta1[i])
         
 
-        album1 = Album.get_images(planta1)
+          album1.insert(i, Album.get_images(planta1[i]))
 
 
-        print("Paso1.2")
-        print(album1[0])
-        print(album1[1])
-        print(album1[2])
+          print("Paso1.2")
 
 
-        number = len(album1)
-        
-        print("PasoNumber")
-        print(number)
-        print("GET")
+          albunesTotales.insert(i, album1)
+          
+          number = len(album1[i])
+          print("Cantidad de fotos en el album: ")
+          print(number)
 
+          print("Albunes totales: ")
+          print(album1[i])
+          indice.insert(i,number)
+
+          i = i + 1
+          print("Pase render_template")
       else:
         print("no hay plantas!")
 
@@ -109,28 +134,43 @@ def profile(name):
         especie =request.form['especie']
         permiso = request.form['seguridad']
         print("POST")
-        if 'one' not in request.form:
+        print(request.form.getlist)
+        #si se presiona un album
+        if 'agregar' not in request.form:
           print("post album")
-          return render_template('timelapse.html', route = name + "/upload", images = album1)
+          for ii in arrayPlanta:
+            aux = str(aux2) + '.' + 'x'
+            if(request.form.getlist(aux)):
+              print("PRESIONE IMAGEN ", aux)
+              break
+            aux2 = aux2 + 1
+            aux = 0
+            print("EL valor del contador es: ",aux2)
+            print(albunesTotales[aux2][0])
+            print(albunesTotales[aux2][1])
+          aux2 = aux2 - 1
+          return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][aux2])
+        #si se carga una especie
         else:
-          print("post especie")#tengo que poder diferenciar si se agrega nueva planta o se ve el timelapse
+          print("post especie ", especie)#tengo que poder diferenciar si se agrega nueva planta o se ve el timelapse
           if(especie != ""):
-            if((Planta.check_plantaName(especie) == False)):
+            if((Planta.check_plantaName(especie) == None)):
               planta = Planta(especie = especie, permiso = permiso)
               user1.addPlanta(planta)
-              print("Planta agregada")
               info='Planta agregada"'
             else:
               info='Planta already added, retry'
-            return render_template('home.html', form=form, info = info, route = name + "/upload", images = album1, numberImage = len(album1))
+            return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = arrayPlanta)
           else:
             info='No se agrego planta'
-            return render_template('home.html', form=form, info = info, route = name + "/upload", images = album1, numberImage = len(album1))
-      return render_template('home.html', form=form, info = info, route = name + "/upload", images = album1, numberImage = len(album1))
+            return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1,myfunction = increment, especies = arrayPlanta)
+      return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = arrayPlanta)
     return "user not sign in"
 
 
-
+def increment():
+  
+  return(x)
 
 
 @app.route('/<name>/upload', methods=['GET', 'POST'])
