@@ -21,9 +21,7 @@
   clear: both;
   display: table;
 }
-.form{
-  width : 50%;
-}
+
 </style>
 </head>
 
@@ -45,7 +43,7 @@
         <input type="text" id="especie" name="especie" placeholder="especie"/>
         <input type="text" id="seguridad" name="seguridad" placeholder="seguridad"/>
         <li><input type="submit" name="agregar" id="agregar" value="agregar"/>
-        <input type="submit" name="one1" id="one1" value="borrar"/></li>
+        <input type="submit" name="borrar" id="borrar" value="borrar"/></li>
         <div class="row">
         {% for i in images %}
             {% set j = j + 1 %}

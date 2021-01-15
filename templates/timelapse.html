@@ -16,8 +16,8 @@
 
 <center>
 <body>
-
-  <div class = "banner">
+  <form action="" method="get" novalidate>
+  <div class = "banner1">
     <ul id="lightSlider" class="gallery">
  
     {% for i in images %}
@@ -27,10 +27,19 @@
     </ul>
   </div>
 
-<button class="btn btn-success" type="button" id="play">Play</button>
-<button class="btn btn-success" type="button" id="pause">Pause</button>
+
+    <button class="btn btn-success" type="button" id="play">Play</button>
+  <button class="btn btn-success" type="button" id="pause">Pause</button>
+  <!--<button class="btn btn-success" type="button" id="borrar">Borrar</button>-->
 
 
+  <a href="{{'borrar'+'/'+Informacion+'/'}}">     
+    <input type="submit" value = "borrar" name = "borrar"  id="borrar">
+  </a>
+
+  <p><input type="hidden" name=informacion value= {{Informacion}} id=informacion/></p>
+</form>
+  
 
 
 
@@ -59,18 +68,28 @@
           swipeThreshold:40,
           responsive: [],
        });
-      $('#play').click(function(){
+      $('#play').click(function(){    
           album.play();    
-
       });    
       $('#pause').click(function(){
           album.pause();    
-      });          
+      });        
+
+      $('#borrar').click(function(){
+        
+        
+        var imagename = (album.find(".active").find("img").attr("src"))
+        var indice = album.find(".active").index()
+
+        document.getElementById('borrar').value = (indice + imagename)
+        
+      });                
     });
 
   });
 </script>
 </body>  
+
 </center>
 </html> 
 

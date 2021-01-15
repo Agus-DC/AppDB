@@ -75,8 +75,11 @@ class Planta(SO.SQLObject):
 
     def get_Planta(id):
         for a in Planta.selectBy(id=id):
-            print (a.especie)
+            print ("[/Models]", a.especie)
             return a
+
+    def get_PlantaName(self):
+        return self.especie    
 
     def albumcheck(self):
         return self.album
@@ -90,9 +93,44 @@ class Planta(SO.SQLObject):
 class Album(SO.SQLObject):
     albumname = SO.StringCol(length=50, varchar=True)
     imagename = SO.StringCol(length=50, varchar=True)
+    #imageid   = SO.StringCol(length=10, varchar=True)
     ruta      = SO.StringCol(length=100,varchar=True)
     timestamp = SO.StringCol(length=50, varchar=True)
     planta    = SO.ForeignKey('Planta', default=None)
+
+
+    #def asignId(planta):
+    #    i = 0
+    #    for j in Album.select(Album.q.planta==planta):
+    #        j.imageid += 1
+    #    return ""    
+
+
+    def delete_image(inx, planta):
+        i = 1
+        array = []
+        for j in Album.select(Album.q.planta==planta):
+            #print(i)
+            #print(j)
+            #print('\t{}) {}'.format(i, j.imagename))
+            #print(planta.especie)
+            #print(j.albumname)
+            
+            if (planta.especie == j.albumname):
+                array.insert(i, j.imagename)
+                i += 1
+            
+
+
+            #    print("ENTRO")
+        print(inx)
+        print(array[inx])      
+        print("AYYYYYYYYYYYYYYYYYY>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<")
+
+        return ""
+        #for planta in self.select(self.planta==planta):
+
+
 
     def get_images(planta):
         i = 1
@@ -123,6 +161,11 @@ class Album(SO.SQLObject):
                 print("Estoy por imprimir cantidad")
                 return ("{}".format(self.select(SO.AND(self.q.planta == planta, self.planta.especie == 'tomate')).count()))
     
+
+
+
+
+
     def Album():
         return Album
 

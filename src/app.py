@@ -10,8 +10,9 @@ from models import usuario, Planta, Album, ExcGroup
 from markupsafe import escape
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from bs4 import BeautifulSoup
 import time
-
+import requests
 import sqlobject as SO
 
 import os
@@ -76,6 +77,8 @@ def profile(name):
     j = 0
     k =0
     aux2 = 0
+    parameter = 0 
+    global especieSeleccionada
 
     print(user1)
 
@@ -97,7 +100,7 @@ def profile(name):
       #consulto si el usuario tiene plantas
       if user1.planta:
         print("hay plantas! ")
-        #print(user1.planta)
+        print(user1.planta)
         for z in arrayPlanta:
           planta_id_user1 = user1.planta[i].id            #Planta 0 del usuario 1        
           planta1.insert(i, Planta.get_Planta(planta_id_user1))
@@ -129,29 +132,19 @@ def profile(name):
 
 
 
+
+
+
+
       if request.method == 'POST': 
       #Solo hay que agregar la planta si no esta agregada
         especie =request.form['especie']
         permiso = request.form['seguridad']
-        print("POST")
+        print("---------------------------------------------------------------POST")
         print(request.form.getlist)
         #si se presiona un album
-        if 'agregar' not in request.form:
-          print("post album")
-          for ii in arrayPlanta:
-            aux = str(aux2) + '.' + 'x'
-            if(request.form.getlist(aux)):
-              print("PRESIONE IMAGEN ", aux)
-              break
-            aux2 = aux2 + 1
-            aux = 0
-            print("EL valor del contador es: ",aux2)
-            print(albunesTotales[aux2][0])
-            print(albunesTotales[aux2][1])
-          aux2 = aux2 - 1
-          return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][aux2])
-        #si se carga una especie
-        else:
+        
+        if 'agregar' in request.form:
           print("post especie ", especie)#tengo que poder diferenciar si se agrega nueva planta o se ve el timelapse
           if(especie != ""):
             if((Planta.check_plantaName(especie) == None)):
@@ -164,59 +157,126 @@ def profile(name):
           else:
             info='No se agrego planta'
             return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1,myfunction = increment, especies = arrayPlanta)
+        
+        elif 'borrar' in request.form:
+          print("Presione borrar")
+        
+        else:        
+          print("post album")
+          for ii in arrayPlanta:
+            aux = str(aux2) + '.' + 'x'
+            if(request.form.getlist(aux)):
+              especieSeleccionada = planta1[aux2].get_PlantaName()
+              print("PRESIONE IMAGEN ", aux)
+              print("De la especie: ", planta1[aux2].get_PlantaName())
+              print("Del usuario: ", name)
+              break
+            aux2 = aux2 + 1
+            aux = 0
+            #print("EL valor del contador es: ",aux2)
+            #print(albunesTotales[aux2][0])
+            #print(albunesTotales[aux2][1])
+          aux2 = aux2 - 1
+          return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][aux2], Informacion =planta1[aux2].get_PlantaName() + '/' + str(aux2)  + '/' + name, parameter = parameter)
+        #si se carga una especie
+
+
+
+      #Al presionar borrar en una imagen
+      if (request.method == 'GET' and request.args.get('borrar') != None):
+        print("---------------------------------------------------------------GET")
+        print("TOMATELA", request.args)
+        print("De la especie: ", request.args.get('borrar'))
+        print("De la info: ", request.args.get('informacion'))
+       
+        indicePlanta = int(request.args.get('informacion').split('/')[1])
+        especie = request.args.get('informacion').split('/')[0]
+        usr = request.args.get('informacion').split('/')[2]
+        imagen = request.args.get('borrar').split('/')[2]
+        indiceImagen = int(request.args.get('borrar').split('/')[0]) - 1
+
+
+        print(user1.planta[int(indicePlanta)])
+  
+        Album.delete_image(indiceImagen, user1.planta[int(indicePlanta)])
+        #album1.pop()
+
       return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = arrayPlanta)
+    
+
+
+
+
+
     return "user not sign in"
 
 
 def increment():
-  
   return(x)
+
+@app.route("/timelapse/")
+def timelapse():
+  return render_template("timelapse.html", images = images)
+
+
+
+@app.route('/borrar/<info>/', methods=['GET', 'POST'])
+def borrarimagen(info):
+  array = []
+  if request.method == 'GET':
+    print("HOLA FRIEND: ", request.args.get('borrar', 0, type=int)) 
+#  route = name + '/' + especie + '/' + 'borrar' + '/'
+  #r = requests.get('http://127.0.0.1:5000/juan')
+  #soup = BeautifulSoup(r.text, 'lxml')
+  #print(soup.div)
+  return render_template('upload.html', especie = array)
+
 
 
 @app.route('/<name>/upload', methods=['GET', 'POST'])
 def upload(name):
-    array = []
-    #tengo que pasarle a upload.html el listado de plantas para ese usuario
-    #Busco las plantas que tiene el usuario
-    user1 = usuario.get_user(name)
+  array = []
+  #tengo que pasarle a upload.html el listado de plantas para ese usuario
+  #Busco las plantas que tiene el usuario
+  user1 = usuario.get_user(name)
+  
+  i = 0
+  for user1.get_id in user1.planta:
+    planta = Planta.get_Planta(user1.get_id)
+    array.insert(i, planta.especie)  
+  print(array)
+
+  # Para obtener el id de la planta en la cual cargar imagenes
+  if user1.planta:
+    print("hay plantas! ")
+    #print(user1.planta)
+    planta_id_user1 = user1.planta[0].id            #Planta 0 del usuario 1        
+    planta1 = Planta.get_Planta(planta_id_user1)
+  # ---------------------------------------------------------------------------------
+  if request.method == 'POST':      
     
-    i = 0
-    for user1.get_id in user1.planta:
-      planta = Planta.get_Planta(user1.get_id)
-      array.insert(i, planta.especie)  
-    print(array)
+    #Si no existe el input o no tiene la validacion correcta, o el formulario no tiene la parte que corresponde al archivo
+    if "ourfile" not in request.files:
+      return "the form has no file part"
+    f = request.files["ourfile"]
+    #Si no se selecciono ningun archivo
+    if f.filename == "":
+      return "No file selected"
+    if f and allow_file(f.filename):
+      filename = secure_filename(f.filename) #Cambia todos las barras por _ dentro del archivo
+      f.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+      print ("Your file has been uploaded " + filename)
 
-    # Para obtener el id de la planta en la cual cargar imagenes
-    if user1.planta:
-      print("hay plantas! ")
-      #print(user1.planta)
-      planta_id_user1 = user1.planta[0].id            #Planta 0 del usuario 1        
-      planta1 = Planta.get_Planta(planta_id_user1)
-    # ---------------------------------------------------------------------------------
-    if request.method == 'POST':      
-      
-      #Si no existe el input o no tiene la validacion correcta, o el formulario no tiene la parte que corresponde al archivo
-      if "ourfile" not in request.files:
-        return "the form has no file part"
-      f = request.files["ourfile"]
-      #Si no se selecciono ningun archivo
-      if f.filename == "":
-        return "No file selected"
-      if f and allow_file(f.filename):
-        filename = secure_filename(f.filename) #Cambia todos las barras por _ dentro del archivo
-        f.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-        print ("Your file has been uploaded " + filename)
+      #validacion de existencia de especie de planta
+      especieIngresada = request.form['especie_form']
+      if especieIngresada not in array:
+        return "Especie no encontrada"
 
-        #validacion de existencia de especie de planta
-        especieIngresada = request.form['especie_form']
-        if especieIngresada not in array:
-          return "Especie no encontrada"
+      album = Album(planta = planta1 ,ruta = UPLOAD_FOLDER, imagename = filename, albumname = especieIngresada, timestamp = time.ctime())#, imageid = Album.asignId(planta1))
 
-        album = Album(planta = planta1 ,ruta = UPLOAD_FOLDER, imagename = filename, albumname = especieIngresada, timestamp = time.ctime())
-
-        return redirect(url_for("profile", name = session [ 'username' ]))
-      return "file not allowed"
-    return render_template('upload.html', especie = array)
+      return redirect(url_for("profile", name = session [ 'username' ]))
+    return "file not allowed"
+  return render_template('upload.html', especie = array)
     
 
 
@@ -228,9 +288,7 @@ def get_file(filename):
   return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 
-@app.route("/timelapse/")
-def timelapse():
-  return render_template("timelapse.html", images = images)
+
 
 
 #Defino la ruta principal
