@@ -177,8 +177,8 @@ def profile(name):
             #print(albunesTotales[aux2][0])
             #print(albunesTotales[aux2][1])
           aux2 = aux2 - 1
-          return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][aux2], Informacion =planta1[aux2].get_PlantaName() + '/' + str(aux2)  + '/' + name, parameter = parameter)
-        #si se carga una especie
+          return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][aux2], Informacion =planta1[aux2].get_PlantaName() + '/' + str(aux2)  + '/' + name)
+
 
 
 
@@ -188,25 +188,40 @@ def profile(name):
         print("TOMATELA", request.args)
         print("De la especie: ", request.args.get('borrar'))
         print("De la info: ", request.args.get('informacion'))
+
        
         indicePlanta = int(request.args.get('informacion').split('/')[1])
         especie = request.args.get('informacion').split('/')[0]
         usr = request.args.get('informacion').split('/')[2]
-        imagen = request.args.get('borrar').split('/')[2]
-        indiceImagen = int(request.args.get('borrar').split('/')[0]) - 1
+ 
 
+        if(request.args.get('borrar') != "NaN"):
+          indiceImagen = int(request.args.get('borrar').split('/')[0]) - 1
+          imagen = request.args.get('borrar').split('/')[2]
+        else:
+          indiceImagen = 0
+          imagen = ""
 
         print(user1.planta[int(indicePlanta)])
-  
-        Album.delete_image(indiceImagen, user1.planta[int(indicePlanta)])
-        #album1.pop()
 
+        Album.delete_image(len(album1[indicePlanta]) - 1, indiceImagen, user1.planta[int(indicePlanta)])
+
+        #return redirect(url_for('borrar', name = usr, especie = indicePlanta, indiceimagen = indiceImagen, indicetotal = len(album1[indicePlanta]) - 1))
+
+      if (request.method == 'GET' and request.args.get('insertar') != None): 
+        print("VIKINGO",request.args.get('insertar'))
+        indicePlanta = int(request.args.get('informacion').split('/')[1])
+        especie = request.args.get('informacion').split('/')[0]
+        usr = request.args.get('informacion').split('/')[2]
+        if(request.args.get('insertar') != "NaN"):
+          indiceImagen = int(request.args.get('insertar').split('/')[0]) - 1
+          imagen = request.args.get('insertar').split('/')[2]
+        else:
+          indiceImagen = 0
+          imagen = ""
+        return redirect(url_for('upload', name = usr, especie = indicePlanta, indiceimagen = indiceImagen, indicetotal = len(album1[indicePlanta]) - 1))
+      
       return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = arrayPlanta)
-    
-
-
-
-
 
     return "user not sign in"
 
@@ -220,64 +235,84 @@ def timelapse():
 
 
 
-@app.route('/borrar/<info>/', methods=['GET', 'POST'])
-def borrarimagen(info):
+
+@app.route('/<name>/borrar/<especie>/<indiceimagen>/<indicetotal>', methods=['GET', 'POST'])
+def borrar(name, especie, indiceimagen, indicetotal):
   array = []
-  if request.method == 'GET':
-    print("HOLA FRIEND: ", request.args.get('borrar', 0, type=int)) 
-#  route = name + '/' + especie + '/' + 'borrar' + '/'
-  #r = requests.get('http://127.0.0.1:5000/juan')
-  #soup = BeautifulSoup(r.text, 'lxml')
-  #print(soup.div)
-  return render_template('upload.html', especie = array)
-
-
-
-@app.route('/<name>/upload', methods=['GET', 'POST'])
-def upload(name):
-  array = []
+  info = ''
+  form = LoginForm()
   #tengo que pasarle a upload.html el listado de plantas para ese usuario
   #Busco las plantas que tiene el usuario
   user1 = usuario.get_user(name)
   
   i = 0
-  for user1.get_id in user1.planta:
-    planta = Planta.get_Planta(user1.get_id)
-    array.insert(i, planta.especie)  
-  print(array)
+  if user1 and user1.get_islogin():
+    for user1.get_id in user1.planta:
+      planta = Planta.get_Planta(user1.get_id)
+      array.insert(i, planta.especie)  
+    print(array)
 
-  # Para obtener el id de la planta en la cual cargar imagenes
-  if user1.planta:
-    print("hay plantas! ")
-    #print(user1.planta)
-    planta_id_user1 = user1.planta[0].id            #Planta 0 del usuario 1        
-    planta1 = Planta.get_Planta(planta_id_user1)
-  # ---------------------------------------------------------------------------------
-  if request.method == 'POST':      
-    
-    #Si no existe el input o no tiene la validacion correcta, o el formulario no tiene la parte que corresponde al archivo
-    if "ourfile" not in request.files:
-      return "the form has no file part"
-    f = request.files["ourfile"]
-    #Si no se selecciono ningun archivo
-    if f.filename == "":
-      return "No file selected"
-    if f and allow_file(f.filename):
-      filename = secure_filename(f.filename) #Cambia todos las barras por _ dentro del archivo
-      f.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-      print ("Your file has been uploaded " + filename)
+    # Para obtener el id de la planta en la cual cargar imagenes
+    if user1.planta:
+      print("hay plantas! ")
+      #print(user1.planta)
+      planta_id_user1 = user1.planta[int(especie)].id            #Planta 0 del usuario 1        
+      planta1 = Planta.get_Planta(planta_id_user1)
 
-      #validacion de existencia de especie de planta
-      especieIngresada = request.form['especie_form']
-      if especieIngresada not in array:
-        return "Especie no encontrada"
-
-      album = Album(planta = planta1 ,ruta = UPLOAD_FOLDER, imagename = filename, albumname = especieIngresada, timestamp = time.ctime())#, imageid = Album.asignId(planta1))
-
-      return redirect(url_for("profile", name = session [ 'username' ]))
-    return "file not allowed"
+      #Album(planta = planta1 ,ruta = UPLOAD_FOLDER, imagename = filename, albumname = especieIngresada, timestamp = time.ctime(), imageid = int(indiceimagen))
   return render_template('upload.html', especie = array)
-    
+
+
+
+
+@app.route('/<name>/upload/<especie>/<indiceimagen>/<indicetotal>', methods=['GET', 'POST'])
+def upload(name, especie, indiceimagen, indicetotal):
+  array = []
+  info = ''
+  form = LoginForm()
+  #tengo que pasarle a upload.html el listado de plantas para ese usuario
+  #Busco las plantas que tiene el usuario
+  user1 = usuario.get_user(name)
+  
+  i = 0
+  if user1 and user1.get_islogin():
+    for user1.get_id in user1.planta:
+      planta = Planta.get_Planta(user1.get_id)
+      array.insert(i, planta.especie)  
+    print(array)
+
+    # Para obtener el id de la planta en la cual cargar imagenes
+    if user1.planta:
+      print("hay plantas! ")
+      #print(user1.planta)
+      planta_id_user1 = user1.planta[int(especie)].id            #Planta 0 del usuario 1        
+      planta1 = Planta.get_Planta(planta_id_user1)
+    # ---------------------------------------------------------------------------------
+    if request.method == 'POST':      
+      
+      #Si no existe el input o no tiene la validacion correcta, o el formulario no tiene la parte que corresponde al archivo
+      if "ourfile" not in request.files:
+        return "the form has no file part"
+      f = request.files["ourfile"]
+      #Si no se selecciono ningun archivo
+      if f.filename == "":
+        return "No file selected"
+      if f and allow_file(f.filename):
+        filename = secure_filename(f.filename) #Cambia todos las barras por _ dentro del archivo
+        f.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        print ("Your file has been uploaded " + filename)
+
+        #validacion de existencia de especie de planta
+        especieIngresada = request.form['especie_form']
+        if especieIngresada not in array:
+          return "Especie no encontrada"
+
+        album = Album(planta = planta1 ,ruta = UPLOAD_FOLDER, imagename = filename, albumname = especieIngresada, timestamp = time.ctime(), imageid = Album.insert(int(indicetotal), int(indiceimagen), planta1))
+
+        return redirect(url_for("profile", name = session [ 'username' ]))
+      return "file not allowed"
+    return render_template('upload.html', especie = array)
+  return render_template('ingresar.html', form = form, info = info)
 
 
 
@@ -335,20 +370,21 @@ if __name__ == "__main__":
 
     # borro las tablas si ya existian
     
-#    ExcGroup.dropTable()
-#    Album.dropTable()
-#    Planta.dropTable()
-#    usuario.dropTable()
+    #ExcGroup.dropTable()
+    #Album.dropTable()
+    #Planta.dropTable()
+    #usuario.dropTable()
 
     # creo las tablas
-#    usuario.createTable();
-#    Planta.createTable();
-#    Album.createTable()
-#    ExcGroup.createTable();
+    #usuario.createTable();
+    #Planta.createTable();
+    #Album.createTable()
+    #ExcGroup.createTable();
     
     
     #ExcGroup()
-    #Planta()
+    #Planta(permiso = 'pu')
+
     #album = Album(title = "empty") #La tabla usuarios no puede referenciar una tabla albums vacia
     
     app.run(debug=True)

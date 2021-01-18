@@ -33,8 +33,12 @@
   <!--<button class="btn btn-success" type="button" id="borrar">Borrar</button>-->
 
 
-  <a href="{{'borrar'+'/'+Informacion+'/'}}">     
+  <a href="">     
     <input type="submit" value = "borrar" name = "borrar"  id="borrar">
+  </a>
+
+  <a href = "">    
+    <input type="submit" value = "insertar" name = "insertar"  id="insertar">
   </a>
 
   <p><input type="hidden" name=informacion value= {{Informacion}} id=informacion/></p>
@@ -77,13 +81,21 @@
 
       $('#borrar').click(function(){
         
-        
         var imagename = (album.find(".active").find("img").attr("src"))
         var indice = album.find(".active").index()
 
         document.getElementById('borrar').value = (indice + imagename)
         
-      });                
+      }); 
+
+      $('#insertar').click(function(){
+        
+        var imagename = (album.find(".active").find("img").attr("src"))
+        var indice = album.find(".active").index()
+
+        document.getElementById('insertar').value = (indice + imagename)
+        //window.location.href = 'http://www.google.com'; 
+      }); 
     });
 
   });
