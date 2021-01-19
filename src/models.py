@@ -65,10 +65,14 @@ class Planta(SO.SQLObject):
     especie    = SO.StringCol(length=25, default=None)
     usuario    = SO.RelatedJoin('usuario')
 
-    def check_plantaName(especie):
+    def check_plantaName(especie, usr):
+        flag = 0
         for a in Planta.selectBy(especie=especie):
-            print(a.especie)
-            return (a.especie != '')     
+            if(a.usuario[0] == usr):
+                print(a.especie)
+                return ''
+        return None   
+
 
     def get_id(self):
         return (self.id)
@@ -137,20 +141,18 @@ class Album(SO.SQLObject):
         idaux = 0
         inx = 0
         print("----------------borrar imagen------------")
-        if (True): 
-            for j in Album.select(orderBy = Album.q.imageid):
-                if(Album.q.planta==planta):
-                    if(idaux):
-                        j.imageid -= 1
-                    elif(j.imageid == (indiceImagen)):
-                        print("indiceImagen, indicetotal, j.imageid: ",indiceImagen, indicetotal, j.imageid)
-                        if(indiceImagen == 0 and indicetotal >= 1 and j.imageid == 0): #condicion de ultima imagen, solo puedo borrarla cuando sea la ultima
-                            return (indiceImagen)    
-                        else:
-                           idaux = j.imageid
-                           j.delete(j.id)
-        else:
-            return indicetotal + 1      
+
+        for j in Album.select(orderBy = Album.q.imageid):
+            if(j.q.planta==planta and j.albumname==planta.especie):
+                if(idaux):
+                    j.imageid -= 1
+                elif(j.imageid == (indiceImagen)):
+                    print("indiceImagen, indicetotal, j.imageid: ",indiceImagen, indicetotal, j.imageid)
+                    if(indiceImagen == 0 and indicetotal >= 1 and j.imageid == 0): #condicion de ultima imagen, solo puedo borrarla cuando sea la ultima
+                        return (indiceImagen)    
+                    else:
+                       idaux = j.imageid
+                       j.delete(j.id) 
         return (indiceImagen)    
 
 
@@ -161,15 +163,11 @@ class Album(SO.SQLObject):
 
 
         for j in Album.select(orderBy = Album.q.imageid):
-            #print(i)
-            #print(j)
-            #print('\t{}) {}'.format(i, j.imagename))
-            #print(planta.especie)
-            #print(j.albumname)
-            if(Album.q.planta==planta):
-                if (planta.especie == j.albumname):
-                    array.insert(i, j.imagename)
-                    i += 1
+            #print(j.planta.usuario[0])
+            #print(planta.usuario[0])
+            if(Album.q.planta==planta and j.albumname == planta.especie and j.planta.usuario[0] == planta.usuario[0]):
+                array.insert(i, j.imagename)
+                i += 1
         #print(array)        
         return array
 

@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <head>
+  {% block title %}{% block page_name %}{% endblock %} Logueado como: {{ownname}} ---- Perfil de: {{guestname}}{% endblock %}
 <style>
 *{
   box-sizing: border-box;
@@ -28,12 +29,16 @@
 
 <body>
 <div class="login-page">
-{% set pepe = 1 %}
+
+    <title>Perfil</title>
+
+    
+
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
         <div>
           <p class="message"><a href="/logout">log out?</a></p>
-          <p class="message"><a href={{route}}>upload</a></p>          
+          <!--<p class="message"><a href={{route}}>upload</a></p>  -->        
         </div>
     </form>
 
@@ -42,8 +47,7 @@
 
         <input type="text" id="especie" name="especie" placeholder="especie"/>
         <input type="text" id="seguridad" name="seguridad" placeholder="seguridad"/>
-        <li><input type="submit" name="agregar" id="agregar" value="agregar"/>
-        <input type="submit" name="borrar" id="borrar" value="borrar"/></li>
+        <li><input type="submit" name="agregar" id="agregar" value="agregar"/></li>
         <div class="row">
         {% for i in images %}
             {% set j = j + 1 %}

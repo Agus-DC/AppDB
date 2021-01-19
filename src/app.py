@@ -78,152 +78,155 @@ def profile(name):
     k =0
     aux2 = 0
     parameter = 0 
-    global especieSeleccionada
-
-    print(user1)
-
-
-  
-    for user1.get_id in user1.planta:
-      planta = Planta.get_Planta(user1.get_id)
-      arrayPlanta.insert(j, planta.especie)  
     
-    arrayPlanta.reverse()
-    print("Las plantas que hay para el usuario son: ", arrayPlanta)
-    cantPlantas = len(arrayPlanta)
-    print("cantidad de plantas: ", cantPlantas)
+    ownname = session [ 'username' ]
+    guestname = name
+    
+    isOwner =  True if (ownname == guestname) else False
+    
+    print("usuario: ", user1)
 
-    if user1 and user1.get_islogin() and (user1.get_username() == name):
-      info = "BIENVENIDO " + name
-      
-      
-      #consulto si el usuario tiene plantas
-      if user1.planta:
-        print("hay plantas! ")
-        print(user1.planta)
-        for z in arrayPlanta:
-          planta_id_user1 = user1.planta[i].id            #Planta 0 del usuario 1        
-          planta1.insert(i, Planta.get_Planta(planta_id_user1))
 
-          print("Paso1")
-          print(planta1[i])
+
+    if user1 is not None:
+
+      for user1.get_id in user1.planta:
+        planta = Planta.get_Planta(user1.get_id)
+        arrayPlanta.insert(j, planta.especie)  
+      
+      arrayPlanta.reverse()
+      print("Las plantas que hay para el usuario son: ", arrayPlanta)
+      cantPlantas = len(arrayPlanta)
+      print("cantidad de plantas: ", cantPlantas)
+
+      if (user1.get_username() == name):
+        info = ""
         
+        
+        #consulto si el usuario tiene plantas
+        if user1.planta:
+          print("hay plantas! ")
+          print(user1.planta)
+          for z in arrayPlanta:
+            planta_id_user1 = user1.planta[i].id            #Planta 0 del usuario 1        
+            planta1.insert(i, Planta.get_Planta(planta_id_user1))
 
-          album1.insert(i, Album.get_images(planta1[i]))
-
-
-          print("Paso1.2")
-
-
-          albunesTotales.insert(i, album1)
+            print("Paso1")
+            print(planta1[i])
           
-          number = len(album1[i])
-          print("Cantidad de fotos en el album: ")
-          print(number)
 
-          print("Albunes totales: ")
-          print(album1[i])
-          indice.insert(i,number)
-
-          i = i + 1
-          print("Pase render_template")
-      else:
-        print("no hay plantas!")
+            album1.insert(i, Album.get_images(planta1[i]))
 
 
+            print("Paso1.2")
+
+
+            albunesTotales.insert(i, album1)
+            
+            number = len(album1[i])
+            print("Cantidad de fotos en el album: ")
+            print(number)
+
+            print("Albunes totales: ")
+            print(album1[i])
+            indice.insert(i,number)
+
+            i = i + 1
+            print("Pase render_template")
+        else:
+          print("no hay plantas!")
 
 
 
 
 
-      if request.method == 'POST': 
-      #Solo hay que agregar la planta si no esta agregada
-        especie =request.form['especie']
-        permiso = request.form['seguridad']
-        print("---------------------------------------------------------------POST")
-        print(request.form.getlist)
-        #si se presiona un album
-        
-        if 'agregar' in request.form:
-          print("post especie ", especie)#tengo que poder diferenciar si se agrega nueva planta o se ve el timelapse
-          if(especie != ""):
-            if((Planta.check_plantaName(especie) == None)):
-              planta = Planta(especie = especie, permiso = permiso)
-              user1.addPlanta(planta)
-              info='Planta agregada"'
+
+
+        if request.method == 'POST': 
+        #Solo hay que agregar la planta si no esta agregada
+          especie =request.form['especie']
+          permiso = request.form['seguridad']
+          print("---------------------------------------------------------------POST")
+          print(request.form.getlist)
+          #si se presiona un album
+          
+          if 'agregar' in request.form:
+            print("post especie ", especie)#tengo que poder diferenciar si se agrega nueva planta o se ve el timelapse
+            if(especie != "" and permiso != "" and (permiso == 'pu' or permiso == 'pri') and isOwner):
+              if((Planta.check_plantaName(especie, user1) == None)):
+                planta = Planta(especie = especie, permiso = permiso)
+                user1.addPlanta(planta)
+                info='Planta agregada!'
+              else:
+                info='Planta already added, retry'
+              return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = arrayPlanta, ownname = session [ 'username' ], guestname = name )
             else:
-              info='Planta already added, retry'
-            return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = arrayPlanta)
+              info='No fue posible agregar planta'
+              return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1,myfunction = increment, especies = arrayPlanta, ownname = session [ 'username' ], guestname = name)
+          
+          else:        
+            print("post album")
+            for ii in arrayPlanta:
+              aux = str(aux2) + '.' + 'x'
+              if(request.form.getlist(aux)):
+                
+                print("PRESIONE IMAGEN ", aux)
+                print("De la especie: ", planta1[aux2].get_PlantaName())
+                print("Del usuario: ", name)
+                break
+              aux2 = aux2 + 1
+              aux = 0
+              #print("EL valor del contador es: ",aux2)
+              #print(albunesTotales[aux2][0])
+              #print(albunesTotales[aux2][1])
+            aux2 = aux2 - 1
+            return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][aux2], Informacion =planta1[aux2].get_PlantaName() + '/' + str(aux2)  + '/' + name)
+
+
+
+
+        #Al presionar borrar en una imagen
+        if (request.method == 'GET' and request.args.get('borrar') != None and isOwner):
+          print("---------------------------------------------------------------GET")
+          print("TOMATELA", request.args)
+          print("De la especie: ", request.args.get('borrar'))
+          print("De la info: ", request.args.get('informacion'))
+
+         
+          indicePlanta = int(request.args.get('informacion').split('/')[1])
+          especie = request.args.get('informacion').split('/')[0]
+          usr = request.args.get('informacion').split('/')[2]
+   
+
+          if(request.args.get('borrar') != "NaN"):
+            indiceImagen = int(request.args.get('borrar').split('/')[0]) - 1
+            imagen = request.args.get('borrar').split('/')[2]
           else:
-            info='No se agrego planta'
-            return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1,myfunction = increment, especies = arrayPlanta)
+            indiceImagen = 0
+            imagen = ""
+
+          print(user1.planta[int(indicePlanta)])
+
+          Album.delete_image(len(album1[indicePlanta]) - 1, indiceImagen, user1.planta[int(indicePlanta)])
+
+          return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][indiceImagen], Informacion =request.args.get('informacion'))
+          #return redirect(url_for('borrar', name = usr, especie = indicePlanta, indiceimagen = indiceImagen, indicetotal = len(album1[indicePlanta]) - 1))
+
+        if (request.method == 'GET' and request.args.get('insertar') != None and isOwner): 
+          print("VIKINGO",request.args.get('insertar'))
+          indicePlanta = int(request.args.get('informacion').split('/')[1])
+          especie = request.args.get('informacion').split('/')[0]
+          usr = request.args.get('informacion').split('/')[2]
+          if(request.args.get('insertar') != "NaN"):
+            indiceImagen = int(request.args.get('insertar').split('/')[0]) - 1
+            imagen = request.args.get('insertar').split('/')[2]
+          else:
+            indiceImagen = 0
+            imagen = ""
+          return redirect(url_for('upload', name = usr, especie = indicePlanta, indiceimagen = indiceImagen, indicetotal = len(album1[indicePlanta]) - 1))
         
-        elif 'borrar' in request.form:
-          print("Presione borrar")
-        
-        else:        
-          print("post album")
-          for ii in arrayPlanta:
-            aux = str(aux2) + '.' + 'x'
-            if(request.form.getlist(aux)):
-              especieSeleccionada = planta1[aux2].get_PlantaName()
-              print("PRESIONE IMAGEN ", aux)
-              print("De la especie: ", planta1[aux2].get_PlantaName())
-              print("Del usuario: ", name)
-              break
-            aux2 = aux2 + 1
-            aux = 0
-            #print("EL valor del contador es: ",aux2)
-            #print(albunesTotales[aux2][0])
-            #print(albunesTotales[aux2][1])
-          aux2 = aux2 - 1
-          return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][aux2], Informacion =planta1[aux2].get_PlantaName() + '/' + str(aux2)  + '/' + name)
-
-
-
-
-      #Al presionar borrar en una imagen
-      if (request.method == 'GET' and request.args.get('borrar') != None):
-        print("---------------------------------------------------------------GET")
-        print("TOMATELA", request.args)
-        print("De la especie: ", request.args.get('borrar'))
-        print("De la info: ", request.args.get('informacion'))
-
-       
-        indicePlanta = int(request.args.get('informacion').split('/')[1])
-        especie = request.args.get('informacion').split('/')[0]
-        usr = request.args.get('informacion').split('/')[2]
- 
-
-        if(request.args.get('borrar') != "NaN"):
-          indiceImagen = int(request.args.get('borrar').split('/')[0]) - 1
-          imagen = request.args.get('borrar').split('/')[2]
-        else:
-          indiceImagen = 0
-          imagen = ""
-
-        print(user1.planta[int(indicePlanta)])
-
-        Album.delete_image(len(album1[indicePlanta]) - 1, indiceImagen, user1.planta[int(indicePlanta)])
-
-        #return redirect(url_for('borrar', name = usr, especie = indicePlanta, indiceimagen = indiceImagen, indicetotal = len(album1[indicePlanta]) - 1))
-
-      if (request.method == 'GET' and request.args.get('insertar') != None): 
-        print("VIKINGO",request.args.get('insertar'))
-        indicePlanta = int(request.args.get('informacion').split('/')[1])
-        especie = request.args.get('informacion').split('/')[0]
-        usr = request.args.get('informacion').split('/')[2]
-        if(request.args.get('insertar') != "NaN"):
-          indiceImagen = int(request.args.get('insertar').split('/')[0]) - 1
-          imagen = request.args.get('insertar').split('/')[2]
-        else:
-          indiceImagen = 0
-          imagen = ""
-        return redirect(url_for('upload', name = usr, especie = indicePlanta, indiceimagen = indiceImagen, indicetotal = len(album1[indicePlanta]) - 1))
-      
-      return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = arrayPlanta)
-
-    return "user not sign in"
+        return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = arrayPlanta, ownname = session [ 'username' ], guestname = name )
+    return "usuario no encontrado"
 
 
 def increment():
@@ -243,10 +246,15 @@ def borrar(name, especie, indiceimagen, indicetotal):
   form = LoginForm()
   #tengo que pasarle a upload.html el listado de plantas para ese usuario
   #Busco las plantas que tiene el usuario
-  user1 = usuario.get_user(name)
-  
   i = 0
-  if user1 and user1.get_islogin():
+  user1 = usuario.get_user(name)
+  ownname = session [ 'username' ]
+  guestname = name
+  
+  isOwner =  True if (ownname == guestname) else False
+  
+  
+  if user1 and isOwner:
     for user1.get_id in user1.planta:
       planta = Planta.get_Planta(user1.get_id)
       array.insert(i, planta.especie)  
