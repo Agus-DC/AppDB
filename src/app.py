@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import sqlobject as SO
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
 #se importan librerias para pagina web
@@ -10,75 +10,52 @@ from flask import render_template, redirect, url_for, session
 import bcrypt 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://invitado:invitado@localhost/app_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://invitado:invitado@localhost/app'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
+class PlantPlot(SO.SQLObject):
+    growthStage = SO.StringCol(length = 25, default=None)
+    temperature = SO.StringCol(length = 25, default=None)
+    humidity    = SO.StringCol(length = 25, default=None)
+    ph          = SO.StringCol(length = 25, default=None)
+    elect       = SO.StringCol(length = 25, default=None)
+    lumens      = SO.StringCol(length = 25, default=None)
+    username    = SO.StringCol(length = 25, default=None)
+#    def __init__(self, title, description):
+#        self.title = title
+#        self.description = description
 
-class Task(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(70), unique=True)
-    description = db.Column(db.String(100))
-    
-    def __init__(self, title, description):
-        self.title = title
-        self.description = description
-
-db.create_all()
 
 class TaskSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'title', 'description')
-
+        fields = ('id', 'growthStage', 'temperature', 'humidity','ph','elect','lumens', 'username')
 
 task_schema = TaskSchema()
-tasks_schema = TaskSchema(many=True)
+
+
 
 @app.route('/tasks', methods=['Post'])
-def create_task():
-  title = request.json['title']
-  description = request.json['description']
+def create_PlantPlot():
+  growthStage = request.json['growthStage']
+  temperature = request.json['temperature']
+  humidity    = request.json['humidity']
+  ph          = request.json['ph']
+  elect       = request.json['elect']
+  lumens      = request.json['lumens']
+  username    = request.json['username']
 
-  new_task= Task(title, description)
+  new_PlantPlot= PlantPlot(growthStage = growthStage, 
+          temperature = temperature,
+          humidity = humidity,
+          ph = ph,
+          elect = elect,
+          lumens = lumens,
+          username = username)
 
-  db.session.add(new_task)
-  db.session.commit()
+  return task_schema.jsonify(new_PlantPlot)
 
-  return task_schema.jsonify(new_task)
-
-@app.route('/tasks', methods=['GET'])
-def get_tasks():
-  all_tasks = Task.query.all()
-  result = tasks_schema.dump(all_tasks)
-  return jsonify(result)
-
-@app.route('/tasks/<id>', methods=['GET'])
-def get_task(id):
-  task = Task.query.get(id)
-  return task_schema.jsonify(task)
-
-@app.route('/tasks/<id>', methods=['PUT'])
-def update_task(id):
-  task = Task.query.get(id)
-
-  title = request.json['title']
-  description = request.json['description']
-
-  task.title = title
-  task.description = description
-
-  db.session.commit()
-
-  return task_schema.jsonify(task)
-
-@app.route('/tasks/<id>', methods=['DELETE'])
-def delete_task(id):
-  task = Task.query.get(id)
-  db.session.delete(task)
-  db.session.commit()
-  return task_schema.jsonify(task)
 
 
 @app.route('/', methods=['GET'])
@@ -88,4 +65,10 @@ def index():
 
 
 if __name__ == "__main__":
+
+    connection = SO.connectionForURI("mysql://invitado:invitado@localhost/app")
+    SO.sqlhub.processConnection = connection
+
+    PlantPlot.createTable();
+
     app.run(debug=True)
