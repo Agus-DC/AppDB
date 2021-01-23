@@ -48,6 +48,24 @@ class usuario(SO.SQLObject):
         for a in usuario.selectBy(username=name):
             return a
 
+    def get_users():
+        users = []
+        index = 0
+        for a in usuario.select():
+            users.insert(index, a)
+            index+=1
+        #print(users)    
+        return users
+
+    def get_users_name():
+        users = []
+        index = 0
+        for a in usuario.select():
+            users.insert(index, a.username)
+            index+=1
+        #print(users)    
+        return users
+
     def check_user(name):
         for a in usuario.selectBy(username=name):
             print(a.username)
@@ -201,3 +219,13 @@ class ExcGroup(SO.SQLObject):
     condicionessUnlock  = SO.StringCol(length = 5, default=None)
     planta              = SO.ForeignKey('Planta', default=None) #va a ser el numero de planta, en default habia un 1
     usuario             = SO.RelatedJoin('usuario')
+
+    #def loadExcUsers(user):
+    def accesible(planta, user):
+        flag = False
+     
+        for j in ExcGroup.select():
+            if (j.planta == planta and j.usuario[0] == user and planta.permiso == '3') or (planta.permiso == '1'):
+                print("Encontre oro puro2 (*) ",j.usuario)
+                flag = True
+        return flag    

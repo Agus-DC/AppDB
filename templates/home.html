@@ -1,6 +1,6 @@
 {% block content %}
 <html xmlns="http://www.w3.org/1999/xhtml">
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<!--<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">-->
 <head>
   {% block title %}{% block page_name %}{% endblock %} Logueado como: {{ownname}} ---- Perfil de: {{guestname}}{% endblock %}
 <style>
@@ -45,14 +45,36 @@
     <form action="" method="post" novalidate>
       {{ form.hidden_tag() }}
 
+
+          <select name="Usuario" multiple = True >
+            
+             <option selected value="0"> Seleccione usuario/s </option>
+                 <optgroup label="Usuarios"> 
+                  {% for i in users %}
+                    <option value={{loop.index}}>{{i}}</option> 
+                  {% endfor %}
+             </optgroup> 
+            
+          </select>
+       
+
+        <select name="seguridad">
+         <option selected value="0"> Seleccionar visibilidad </option>
+         <optgroup label="Seguridad"> 
+           <option value="1">Publica</option> 
+           <option value="2">Privada</option> 
+           <option value="3">Protegida</option> 
+         </optgroup> 
+        </select>
+
         <input type="text" id="especie" name="especie" placeholder="especie"/>
-        <input type="text" id="seguridad" name="seguridad" placeholder="seguridad"/>
-        <li><input type="submit" name="agregar" id="agregar" value="agregar"/></li>
+        <input type="submit" name="agregar" id="agregar" value="Agregar"/>
+
         <div class="row">
         {% for i in images %}
             {% set j = j + 1 %}
             <div class = "column">
-            <p><input type="image" id="botondeenvio" name={{loop.index}}  src="{{url_for('get_file' , filename=i[loop.index-1][0])}}" alt="Enviar formulario" style="width:100px;height:100px;"></p>
+            <p><input type="image" id="botondeenvio" name={{loop.index}}  src="{{url_for('get_file' , filename=i[loop.index-1][0])}}" alt="Enviar formulario" style="width:300px;height:300px;"></p>
 
             <!--{{ form.loop }}
             {{ loop.index }}-->
@@ -74,3 +96,11 @@
 
 
 
+<!--
+<script type="text/javascript">
+  $(document).ready(function() {
+      $('#play').click(function(){    
+          album.play();    
+      });
+
+-->      

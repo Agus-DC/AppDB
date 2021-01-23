@@ -62,6 +62,8 @@ def index():
 
 
 
+
+
 @app.route('/<name>', methods=['GET', 'POST'])
 def profile(name):
     form = LoginForm()
@@ -78,61 +80,71 @@ def profile(name):
     k =0
     aux2 = 0
     parameter = 0 
-    
+    p = 0
+
     ownname = session [ 'username' ]
     guestname = name
     
     isOwner =  True if (ownname == guestname) else False
-    
+    userOwner = usuario.get_user(ownname)
+
     print("usuario: ", user1)
 
 
 
     if user1 is not None:
 
-      for user1.get_id in user1.planta:
-        planta = Planta.get_Planta(user1.get_id)
-        arrayPlanta.insert(j, planta.especie)  
+      for b in user1.planta: #planta
+        planta = Planta.get_Planta(b) 
+        if ExcGroup.accesible(planta, userOwner):
+          print(" A esta planta pude acceder: ", planta)
+          arrayPlanta.insert(j, planta.especie)  
+        else:
+          arrayPlanta.insert(j, None)
       
       arrayPlanta.reverse()
       print("Las plantas que hay para el usuario son: ", arrayPlanta)
       cantPlantas = len(arrayPlanta)
       print("cantidad de plantas: ", cantPlantas)
 
+
       if (user1.get_username() == name):
         info = ""
-        
-        
         #consulto si el usuario tiene plantas
         if user1.planta:
           print("hay plantas! ")
-          print(user1.planta)
-          for z in arrayPlanta:
-            planta_id_user1 = user1.planta[i].id            #Planta 0 del usuario 1        
-            planta1.insert(i, Planta.get_Planta(planta_id_user1))
+          print(user1.planta)  #Son todas las plantas
+          for z in arrayPlanta:#son solo nombres de plantas
+            print("LA PLANTA QUE LE ESTOY PASANDO ES: ", user1.planta[p])
+            
+            if ExcGroup.accesible(user1.planta[p], userOwner):
+              print("Accesible PA",user1.planta[p])
+              planta_id_user1 = user1.planta[p].id            #Planta 0 del usuario 1        
+              planta1.insert(i, Planta.get_Planta(planta_id_user1))
 
-            print("Paso1")
-            print(planta1[i])
+              print("Paso1")
+              print(planta1[i])
           
 
-            album1.insert(i, Album.get_images(planta1[i]))
+              album1.insert(i, Album.get_images(planta1[i]))
 
 
-            print("Paso1.2")
+              print("Paso1.2")
 
 
-            albunesTotales.insert(i, album1)
+              albunesTotales.insert(i, album1)
             
-            number = len(album1[i])
-            print("Cantidad de fotos en el album: ")
-            print(number)
+              number = len(album1[i])
+              print("Cantidad de fotos en el album: ")
+              print(number)
 
-            print("Albunes totales: ")
-            print(album1[i])
-            indice.insert(i,number)
+              print("Albunes totales: ")
+              print(album1[i])
+              indice.insert(i,number)
 
-            i = i + 1
-            print("Pase render_template")
+              i+=1
+              print("Pase render_template")
+            p += 1  
         else:
           print("no hay plantas!")
 
@@ -152,17 +164,38 @@ def profile(name):
           
           if 'agregar' in request.form:
             print("post especie ", especie)#tengo que poder diferenciar si se agrega nueva planta o se ve el timelapse
-            if(especie != "" and permiso != "" and (permiso == 'pu' or permiso == 'pri') and isOwner):
+            select = request.form.getlist('Usuario')
+            
+
+            print("LISTA DE USUARIOS!!",select)
+            print(request.form.get('seguridad'))
+
+            ArrayUserSelect = []
+            ArrayUserSelect = request.form.getlist('Usuario')
+
+
+            if(especie != "" and permiso != '0' and ArrayUserSelect != '0' and isOwner):
+              
               if((Planta.check_plantaName(especie, user1) == None)):
                 planta = Planta(especie = especie, permiso = permiso)
                 user1.addPlanta(planta)
+
+                Exc = ExcGroup(planta = planta)
+
+                for u in ArrayUserSelect:
+                  print("USUARIO NUmeRO: ",usuario.get_users()[int(u) - 1])
+                  Exc.addUsuario(usuario.get_users()[int(u) - 1])         
+
                 info='Planta agregada!'
+              
+
+
               else:
                 info='Planta already added, retry'
-              return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = arrayPlanta, ownname = session [ 'username' ], guestname = name )
+              return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = list(filter(None, arrayPlanta)), ownname = session [ 'username' ], guestname = name, users = usuario.get_users_name())
             else:
               info='No fue posible agregar planta'
-              return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1,myfunction = increment, especies = arrayPlanta, ownname = session [ 'username' ], guestname = name)
+              return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1,myfunction = increment, especies = list(filter(None, arrayPlanta)), ownname = session [ 'username' ], guestname = name, users = usuario.get_users_name())
           
           else:        
             print("post album")
@@ -171,7 +204,7 @@ def profile(name):
               if(request.form.getlist(aux)):
                 
                 print("PRESIONE IMAGEN ", aux)
-                print("De la especie: ", planta1[aux2].get_PlantaName())
+                #print("De la especie: ", planta1[aux2].get_PlantaName())
                 print("Del usuario: ", name)
                 break
               aux2 = aux2 + 1
@@ -225,8 +258,17 @@ def profile(name):
             imagen = ""
           return redirect(url_for('upload', name = usr, especie = indicePlanta, indiceimagen = indiceImagen, indicetotal = len(album1[indicePlanta]) - 1))
         
-        return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = arrayPlanta, ownname = session [ 'username' ], guestname = name )
+        return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = list(filter(None, arrayPlanta)), ownname = session [ 'username' ], guestname = name, users = usuario.get_users_name())
     return "usuario no encontrado"
+
+
+
+
+
+#def LoadExcUsers(UsersIndex[], Users[]):
+  #UsersIndex[] = request.form.getlist('Usuario')
+  #Users[] = usuario.get_users()
+
 
 
 def increment():
@@ -378,20 +420,20 @@ if __name__ == "__main__":
 
     # borro las tablas si ya existian
     
-    #ExcGroup.dropTable()
-    #Album.dropTable()
-    #Planta.dropTable()
-    #usuario.dropTable()
+    ExcGroup.dropTable()
+    Album.dropTable()
+    Planta.dropTable()
+    usuario.dropTable()
 
     # creo las tablas
-    #usuario.createTable();
-    #Planta.createTable();
-    #Album.createTable()
-    #ExcGroup.createTable();
+    usuario.createTable();
+    Planta.createTable();
+    Album.createTable()
+    ExcGroup.createTable();
     
     
-    #ExcGroup()
-    #Planta(permiso = 'pu')
+    ExcGroup()
+    Planta(permiso = 'pu')
 
     #album = Album(title = "empty") #La tabla usuarios no puede referenciar una tabla albums vacia
     
