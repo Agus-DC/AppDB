@@ -7,6 +7,7 @@ from random import randint
 app = Flask(__name__)
 
 _users = ['Juan', 'Pepe', 'Carla', 'Valeria']
+_plants = ['tomate', 'apio', 'lechuga', 'morron']
 _growthStage = ['Germinacion', 'Crecimiento', 'Floracion']
 
 
@@ -23,8 +24,9 @@ with app.app_context():
 		#value = randint(0, 10)
 		#print(value)	
 		
-		userslen = randint(0, len(_users) - 1)
-		growthStagelen = randint(0, len(_growthStage) - 1)
+		usersindex = randint(0, len(_users) - 1)
+		plantsindex = randint(0, len(_plants) - 1)
+		growthStageindex = randint(0, len(_growthStage) - 1)
 		_temperature = str(randint(20, 35))
 		_humidity = str(randint(50,99))
 		_ph = str(randint(0,14))
@@ -32,13 +34,14 @@ with app.app_context():
 		_lumens = str(randint(0,1000))
 
 		payload = {
-		    "growthStage" : _growthStage[growthStagelen], 
+		    "growthStage" : _growthStage[growthStageindex], 
           	"temperature" : _temperature,
           	"humidity" : _humidity,
           	"ph" : _ph,
           	"elect" : _elect,
           	"lumens" : _lumens,
-          	"username": _users[userslen]
+          	"username": _users[usersindex],
+          	"plantname": _plants[plantsindex]
 		}
 
 

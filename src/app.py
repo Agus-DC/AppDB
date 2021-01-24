@@ -31,7 +31,7 @@ app.secret_key = 'cualquier cadena aleatoria'
 ma = Marshmallow(app)
 class TaskSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'growthStage', 'temperature', 'humidity','ph','elect','lumens', 'username')
+        fields = ('id', 'growthStage', 'temperature', 'humidity','ph','elect','lumens', 'username', 'plantname')
 
 task_schema = TaskSchema()
 
@@ -99,8 +99,6 @@ def profile(name):
     userOwner = usuario.get_user(ownname)
 
     print("usuario: ", user1)
-
-
 
     if user1 is not None:
 
@@ -276,6 +274,7 @@ def profile(name):
 
 @app.route('/tasks', methods=['Post'])
 def create_PlantPlot():
+
   growthStage = request.json['growthStage']
   temperature = request.json['temperature']
   humidity    = request.json['humidity']
@@ -283,16 +282,27 @@ def create_PlantPlot():
   elect       = request.json['elect']
   lumens      = request.json['lumens']
   username    = request.json['username']
+  plantname   = request.json['plantname']
 
-  new_PlantPlot= PlantPlot(growthStage = growthStage, 
-          temperature = temperature,
-          humidity = humidity,
-          ph = ph,
-          elect = elect,
-          lumens = lumens,
-          username = username)
+  user1 = usuario.get_user(username)
+  if user1 is not None:
+    for b in user1.planta: #planta
+      planta = Planta.get_Planta(b) 
+      if planta.especie == plantname:
+        new_PlantPlot= PlantPlot(
+                growthStage = growthStage, 
+                temperature = temperature,
+                humidity = humidity,
+                ph = ph,
+                elect = elect,
+                lumens = lumens,
+                username = username,
+                plantname = plantname,
+                plant = planta)
 
-  return task_schema.jsonify(new_PlantPlot)
+        return task_schema.jsonify(new_PlantPlot)
+    return "No se encontro la planta" 
+  return "No se encontro el usuario"   
 
 
 
@@ -444,7 +454,7 @@ if __name__ == "__main__":
     # connection.debug = True
 
     # borro las tablas si ya existian
-    #PlantPlot.dropTable();
+    PlantPlot.dropTable();
     #ExcGroup.dropTable()
     #Album.dropTable()
     #Planta.dropTable()
@@ -455,7 +465,7 @@ if __name__ == "__main__":
     #Planta.createTable();
     #Album.createTable()
     #ExcGroup.createTable();
-    #PlantPlot.createTable();
+    PlantPlot.createTable();
     
     ExcGroup()
     Planta(permiso = 'pu')

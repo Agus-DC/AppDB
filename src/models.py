@@ -22,9 +22,8 @@ class PlantPlot(SO.SQLObject):
     elect       = SO.StringCol(length = 25, default=None)
     lumens      = SO.StringCol(length = 25, default=None)
     username    = SO.StringCol(length = 25, default=None)
-#    def __init__(self, title, description):
-#        self.title = title
-#        self.description = description
+    plantname   = SO.StringCol(length = 25, default=None)
+    plant       = SO.ForeignKey('Planta', default=None)
 
 
 
