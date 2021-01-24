@@ -11,6 +11,26 @@ from flask_login import UserMixin #?
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
+
+
+
+class PlantPlot(SO.SQLObject):
+    growthStage = SO.StringCol(length = 25, default=None)
+    temperature = SO.StringCol(length = 25, default=None)
+    humidity    = SO.StringCol(length = 25, default=None)
+    ph          = SO.StringCol(length = 25, default=None)
+    elect       = SO.StringCol(length = 25, default=None)
+    lumens      = SO.StringCol(length = 25, default=None)
+    username    = SO.StringCol(length = 25, default=None)
+#    def __init__(self, title, description):
+#        self.title = title
+#        self.description = description
+
+
+
+
+
+
 class usuario(SO.SQLObject):
 
     username   = SO.StringCol(length = 25, default=None)
@@ -220,7 +240,6 @@ class ExcGroup(SO.SQLObject):
     planta              = SO.ForeignKey('Planta', default=None) #va a ser el numero de planta, en default habia un 1
     usuario             = SO.RelatedJoin('usuario')
 
-    #def loadExcUsers(user):
     def accesible(planta, user):
         flag = False
      

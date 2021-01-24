@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from flask import Flask, jsonify,request #Contiene toda la informacion del cliente
 
+from flask import Flask, jsonify,request #Contiene toda la informacion del cliente
 #se importan librerias para pagina web
 from flask import render_template, redirect, url_for, session, send_from_directory, escape, request, Response
 
 from forms import SignupForm, LoginForm #Publicaciones #PostForm, 
-from models import usuario, Planta, Album, ExcGroup
+from models import usuario, Planta, Album, ExcGroup, PlantPlot
 from markupsafe import escape
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -14,6 +14,8 @@ from bs4 import BeautifulSoup
 import time
 import requests
 import sqlobject as SO
+from flask_marshmallow import Marshmallow
+
 
 import os
 UPLOAD_FOLDER = os.path.abspath("../uploads/") 
@@ -24,6 +26,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://invitado:invitado@local
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.secret_key = 'cualquier cadena aleatoria'
+
+
+ma = Marshmallow(app)
+class TaskSchema(ma.Schema):
+    class Meta:
+        fields = ('id', 'growthStage', 'temperature', 'humidity','ph','elect','lumens', 'username')
+
+task_schema = TaskSchema()
 
 
 def allow_file(filename):
@@ -149,11 +159,6 @@ def profile(name):
           print("no hay plantas!")
 
 
-
-
-
-
-
         if request.method == 'POST': 
         #Solo hay que agregar la planta si no esta agregada
           especie =request.form['especie']
@@ -268,6 +273,26 @@ def profile(name):
 #def LoadExcUsers(UsersIndex[], Users[]):
   #UsersIndex[] = request.form.getlist('Usuario')
   #Users[] = usuario.get_users()
+
+@app.route('/tasks', methods=['Post'])
+def create_PlantPlot():
+  growthStage = request.json['growthStage']
+  temperature = request.json['temperature']
+  humidity    = request.json['humidity']
+  ph          = request.json['ph']
+  elect       = request.json['elect']
+  lumens      = request.json['lumens']
+  username    = request.json['username']
+
+  new_PlantPlot= PlantPlot(growthStage = growthStage, 
+          temperature = temperature,
+          humidity = humidity,
+          ph = ph,
+          elect = elect,
+          lumens = lumens,
+          username = username)
+
+  return task_schema.jsonify(new_PlantPlot)
 
 
 
@@ -419,18 +444,18 @@ if __name__ == "__main__":
     # connection.debug = True
 
     # borro las tablas si ya existian
-    
-    ExcGroup.dropTable()
-    Album.dropTable()
-    Planta.dropTable()
-    usuario.dropTable()
+    #PlantPlot.dropTable();
+    #ExcGroup.dropTable()
+    #Album.dropTable()
+    #Planta.dropTable()
+    #usuario.dropTable()
 
     # creo las tablas
-    usuario.createTable();
-    Planta.createTable();
-    Album.createTable()
-    ExcGroup.createTable();
-    
+    #usuario.createTable();
+    #Planta.createTable();
+    #Album.createTable()
+    #ExcGroup.createTable();
+    #PlantPlot.createTable();
     
     ExcGroup()
     Planta(permiso = 'pu')
