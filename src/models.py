@@ -9,25 +9,33 @@ FECHA DE CREACIÓN: 15/02/2019
 import sqlobject as SO
 from flask_login import UserMixin #?
 from werkzeug.security import generate_password_hash, check_password_hash
-
+import json
 
 
 
 
 class PlantPlot(SO.SQLObject):
-    growthStage = SO.StringCol(length = 25, default=None)
+
     temperature = SO.StringCol(length = 25, default=None)
     humidity    = SO.StringCol(length = 25, default=None)
     ph          = SO.StringCol(length = 25, default=None)
     elect       = SO.StringCol(length = 25, default=None)
     lumens      = SO.StringCol(length = 25, default=None)
+    growthStage = SO.StringCol(length = 25, default=None)
     username    = SO.StringCol(length = 25, default=None)
     plantname   = SO.StringCol(length = 25, default=None)
     plant       = SO.ForeignKey('Planta', default=None)
 
+    def get_data(plant):
+        data = []
+        index = 0
+        for j in PlantPlot.select(PlantPlot.q.plant==plant):
+            data.insert(index, j)
+            index+=1
+        return data
 
 
-
+        #print(users)    
 
 
 class usuario(SO.SQLObject):

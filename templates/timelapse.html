@@ -11,6 +11,10 @@
     <script src="{{ url_for('static', filename='lightslider.js') }}"></script>
     <link rel = "stylesheet" href = "{{ url_for('static', filename='lightslider.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script type="text/javascript" src="https://spage.me/S/js/fusioncharts/fusioncharts.js"></script>
+    <script type="text/javascript" src="https://spage.me/S/js/fusioncharts/themes/fusioncharts.theme.fusion.js"></script>
+
 </head>
 
 
@@ -41,11 +45,343 @@
     <input type="submit" value = "insertar" name = "insertar"  id="insertar">
   </a>
 
-  <p><input type="hidden" name=informacion value= {{Informacion}} id=informacion/></p>
-</form>
+  <p><input type="hidden" name="informacion" value= {{Informacion}} id="informacion"/></p>
+
+
+
+
+
+  {% for j in PlantData %}
+    <p><input type="hidden" name={{loop.index}} 
+      value= {{j.temperature}}/{{j.humidity}}/{{j.ph}}/{{j.elect}}/{{j.lumens}}/{{j.growthStage}}/{{j.username}}/{{j.plantname}}  id={{loop.index}} /></p>    
+  {% endfor %}
+    <p><input type="hidden" name="idx" value= {{PlantDataRows}} id="idx"></p>
   
 
 
+ <!-- <div>{{PlantData}}</div>-->
+
+
+
+  <hr/>
+  <p>&nbsp;</p>
+
+
+
+<!--<script type = "text/javascript" src = "http://www.gstatic.com/charts/loader.js"></script>
+<div id="linechart_material"></div>-->
+
+<!--<DIV id="chart_container" class="chart_shadom">Chart will render here!</DIV>-->
+<div id="chart-container-temperature"></div>
+<div id="chart-container-humidity"></div>
+<div id="chart-container-ph"></div>
+<div id="chart-container-elect"></div>
+<div id="chart-container-lum"></div>
+
+<script type = "text/javascript">
+
+      var XaxisCount = [0,0,0];
+      var Xaxis;
+
+      var indice = document.getElementById('idx').value;
+      //alert(indice);
+
+      var matrix =[];
+      var listEtapa =[];
+      var aux = [];
+      for (i = 1; i <= indice; i++) {
+        var Datafordisplay = document.getElementById(i).value;
+        var datar = Datafordisplay.split("/",5);
+        
+        listEtapa[i] = Datafordisplay.split("/",6).reverse().toString().split(",", 1);
+        //alert(listEtapa[i]);
+        if (listEtapa[i] == "Germinacion"){
+          XaxisCount[0]+=1;
+        }
+        if (listEtapa[i] == "Crecimiento"){
+          XaxisCount[1]+=1;
+        }
+        if (listEtapa[i] == "Floracion"){
+          XaxisCount[2]+=1;
+        }
+
+        matrix[i] = datar;
+              
+        
+      } 
+
+      Xaxis = Math.max.apply(null, XaxisCount)
+      
+      //alert((listEtapa));
+
+      //alert((matrix));
+
+const temperature = {
+  chart: {
+    caption: "Temperatura",
+    yaxisname: "°C",
+    subcaption: "Muestras recibidas",
+    showhovereffect: "1",
+    numbersuffix: "",
+    drawcrossline: "1",
+    plottooltext: "<b>$dataValue</b> of youth were on $seriesName",
+    theme: "fusion"
+  },
+
+  categories: [
+    {
+        category: []
+    }
+  ],
+  dataset: [
+    {
+      seriesname: "Germinacion",
+      data: []
+    },
+    {
+      seriesname: "Crecimiento",
+      data: []
+    },
+    {
+      seriesname: "Floracion",
+      data: []
+    },
+  ]
+
+
+};
+
+const humidity = {
+  chart: {
+    caption: "Humedad",
+    yaxisname: "%",
+    subcaption: "Muestras recibidas",
+    showhovereffect: "1",
+    numbersuffix: "",
+    drawcrossline: "1",
+    plottooltext: "<b>$dataValue</b> of youth were on $seriesName",
+    theme: "fusion"
+  },
+
+  categories: [
+    {
+        category: []
+    }
+  ],
+  dataset: [
+    {
+      seriesname: "Germinacion",
+      data: []
+    },
+    {
+      seriesname: "Crecimiento",
+      data: []
+    },
+    {
+      seriesname: "Floracion",
+      data: []
+    },
+  ]
+};
+
+
+const ph = {
+  chart: {
+    caption: "PH",
+    yaxisname: "rel",
+    subcaption: "Muestras recibidas",
+    showhovereffect: "1",
+    numbersuffix: "",
+    drawcrossline: "1",
+    plottooltext: "<b>$dataValue</b> of youth were on $seriesName",
+    theme: "fusion"
+  },
+
+  categories: [
+    {
+        category: []
+    }
+  ],
+  dataset: [
+    {
+      seriesname: "Germinacion",
+      data: []
+    },
+    {
+      seriesname: "Crecimiento",
+      data: []
+    },
+    {
+      seriesname: "Floracion",
+      data: []
+    },
+  ]
+};
+
+const elect = {
+  chart: {
+    caption: "Electroconductividad",
+    yaxisname: "Siemens",
+    subcaption: "Muestras recibidas",
+    showhovereffect: "1",
+    numbersuffix: "",
+    drawcrossline: "1",
+    plottooltext: "<b>$dataValue</b> of youth were on $seriesName",
+    theme: "fusion"
+  },
+
+  categories: [
+    {
+        category: []
+    }
+  ],
+  dataset: [
+    {
+      seriesname: "Germinacion",
+      data: []
+    },
+    {
+      seriesname: "Crecimiento",
+      data: []
+    },
+    {
+      seriesname: "Floracion",
+      data: []
+    },
+  ]
+};
+
+const lum = {
+  chart: {
+    caption: "lumens",
+    yaxisname: "lux",
+    subcaption: "Muestras recibidas",
+    showhovereffect: "1",
+    numbersuffix: "",
+    drawcrossline: "1",
+    plottooltext: "<b>$dataValue</b> of youth were on $seriesName",
+    theme: "fusion"
+  },
+
+  categories: [
+    {
+        category: []
+    }
+  ],
+  dataset: [
+    {
+      seriesname: "Germinacion",
+      data: []
+    },
+    {
+      seriesname: "Crecimiento",
+      data: []
+    },
+    {
+      seriesname: "Floracion",
+      data: []
+    },
+  ]
+};
+
+
+for (var a = 0; a < Xaxis; a++) {
+    temperature.categories[0].category.push({label: a.toString()});
+    humidity.categories[0].category.push({label: a.toString()});
+    ph.categories[0].category.push({label: a.toString()});
+    elect.categories[0].category.push({label: a.toString()});
+    lum.categories[0].category.push({label: a.toString()});
+}
+
+for (var a = 0; a <= indice; a++) {
+    if(listEtapa[a] == 'Floracion'){
+      temperature.dataset[2].data.push({value: matrix[a][0]});
+      humidity.dataset[2].data.push({value: matrix[a][1]});
+      ph.dataset[2].data.push({value: matrix[a][2]});
+      elect.dataset[2].data.push({value: matrix[a][3]});
+      lum.dataset[2].data.push({value: matrix[a][4]});
+    }
+    if(listEtapa[a] == 'Crecimiento'){ 
+      temperature.dataset[1].data.push({value: matrix[a][0]});
+      humidity.dataset[1].data.push({value: matrix[a][1]});
+      ph.dataset[1].data.push({value: matrix[a][2]});
+      elect.dataset[1].data.push({value: matrix[a][3]});
+      lum.dataset[1].data.push({value: matrix[a][4]});      
+    }
+    if(listEtapa[a] == 'Germinacion'){
+      temperature.dataset[0].data.push({value: matrix[a][0]});    
+      humidity.dataset[0].data.push({value: matrix[a][1]});  
+      ph.dataset[0].data.push({value: matrix[a][2]});
+      elect.dataset[0].data.push({value: matrix[a][3]});
+      lum.dataset[0].data.push({value: matrix[a][4]});      
+    }
+}
+
+
+
+
+if(indice != 0){
+  FusionCharts.ready(function() {
+    var myChart = new FusionCharts({
+      type: "msline",
+      renderAt: "chart-container-temperature",
+      width: "50%",
+      height: "50%",
+      dataFormat: "json",
+      dataSource: temperature
+    }).render();
+  });
+
+  FusionCharts.ready(function() {
+    var myChart = new FusionCharts({
+      type: "msline",
+      renderAt: "chart-container-humidity",
+      width: "50%",
+      height: "40%",
+      dataFormat: "json",
+      dataSource: humidity
+    }).render();
+  });
+
+  FusionCharts.ready(function() {
+    var myChart = new FusionCharts({
+      type: "msline",
+      renderAt: "chart-container-ph",
+      width: "50%",
+      height: "30%",
+      dataFormat: "json",
+      dataSource: ph
+    }).render();
+  });
+
+  FusionCharts.ready(function() {
+    var myChart = new FusionCharts({
+      type: "msline",
+      renderAt: "chart-container-elect",
+      width: "50%",
+      height: "20%",
+      dataFormat: "json",
+      dataSource: elect
+    }).render();
+  });
+
+  FusionCharts.ready(function() {
+    var myChart = new FusionCharts({
+      type: "msline",
+      renderAt: "chart-container-lum",
+      width: "50%",
+      height: "20%",
+      dataFormat: "json",
+      dataSource: lum
+    }).render();
+  });
+}
+
+
+    
+</script>
+
+</form>
 
 
 

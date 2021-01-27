@@ -216,7 +216,13 @@ def profile(name):
               #print(albunesTotales[aux2][0])
               #print(albunesTotales[aux2][1])
             aux2 = aux2 - 1
-            return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][aux2], Informacion =planta1[aux2].get_PlantaName() + '/' + str(aux2)  + '/' + name)
+
+            plantData = []
+            plantData = PlantPlot.get_data(planta1[aux2])
+            
+            print("La info que tengo, cuando se presiona la imagen: ", plantData)
+
+            return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][aux2], Informacion =planta1[aux2].get_PlantaName() + '/' + str(aux2)  + '/' + name, PlantData = plantData, PlantDataRows = len(plantData))
 
 
 
@@ -245,7 +251,11 @@ def profile(name):
 
           Album.delete_image(len(album1[indicePlanta]) - 1, indiceImagen, user1.planta[int(indicePlanta)])
 
-          return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][indiceImagen], Informacion =request.args.get('informacion'))
+
+          plantData = PlantPlot.get_data(user1.planta[int(indicePlanta)])
+          print("La info que tengo, cuando se borra la imagen: ", plantData[0].growthStage)
+
+          return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][indiceImagen], Informacion =request.args.get('informacion'), plantData = plantData[0].growthStage)
           #return redirect(url_for('borrar', name = usr, especie = indicePlanta, indiceimagen = indiceImagen, indicetotal = len(album1[indicePlanta]) - 1))
 
         if (request.method == 'GET' and request.args.get('insertar') != None and isOwner): 
@@ -275,12 +285,13 @@ def profile(name):
 @app.route('/tasks', methods=['Post'])
 def create_PlantPlot():
 
-  growthStage = request.json['growthStage']
+  
   temperature = request.json['temperature']
   humidity    = request.json['humidity']
   ph          = request.json['ph']
   elect       = request.json['elect']
   lumens      = request.json['lumens']
+  growthStage = request.json['growthStage']
   username    = request.json['username']
   plantname   = request.json['plantname']
 
@@ -290,12 +301,13 @@ def create_PlantPlot():
       planta = Planta.get_Planta(b) 
       if planta.especie == plantname:
         new_PlantPlot= PlantPlot(
-                growthStage = growthStage, 
+                
                 temperature = temperature,
                 humidity = humidity,
                 ph = ph,
                 elect = elect,
                 lumens = lumens,
+                growthStage = growthStage, 
                 username = username,
                 plantname = plantname,
                 plant = planta)
@@ -454,7 +466,7 @@ if __name__ == "__main__":
     # connection.debug = True
 
     # borro las tablas si ya existian
-    PlantPlot.dropTable();
+    #PlantPlot.dropTable();
     #ExcGroup.dropTable()
     #Album.dropTable()
     #Planta.dropTable()
@@ -465,7 +477,7 @@ if __name__ == "__main__":
     #Planta.createTable();
     #Album.createTable()
     #ExcGroup.createTable();
-    PlantPlot.createTable();
+    #PlantPlot.createTable();
     
     ExcGroup()
     Planta(permiso = 'pu')
