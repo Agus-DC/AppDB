@@ -10,7 +10,7 @@
   </script>
     <script src="{{ url_for('static', filename='lightslider.js') }}"></script>
     <link rel = "stylesheet" href = "{{ url_for('static', filename='lightslider.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!--<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">-->
 
     <script type="text/javascript" src="https://spage.me/S/js/fusioncharts/fusioncharts.js"></script>
     <script type="text/javascript" src="https://spage.me/S/js/fusioncharts/themes/fusioncharts.theme.fusion.js"></script>
@@ -20,12 +20,18 @@
 
 <center>
 <body>
+
+  <div>
+    <p class="message"><a href="/{{myperfil}}">Mi perfil</a></p>     
+    <p class="message"><a href="/{{guestperfil}}">Volver al perfil</a></p>   
+  </div>
+  
   <form action="" method="get" novalidate>
   <div class = "banner1">
     <ul id="lightSlider" class="gallery">
  
     {% for i in images %}
-    <li data-thumb="{{url_for('get_file' , filename=i)}}"> <a href="{{url_for('get_file' , filename=i)}}"> <img src="{{url_for('get_file' , filename=i)}}"> </a> </li>
+    <li data-thumb="{{url_for('get_file' , filename=i)}}"> <a href="{{url_for('get_file' , filename=i)}}"> <img src="{{url_for('get_file' , filename=i)}}" style="border-radius: 20px"> </a> </li>
     {% endfor %}
 
     </ul>

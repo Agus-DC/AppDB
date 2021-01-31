@@ -2,7 +2,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <!--<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">-->
 <head>
+<div id="block_container">
+  <div id="bloc1">
+    <p class="message"><a href="/logout">Salir?  </a>
+    <a href="/{{ownname}}">Mi perfil</a></p>      
+  </div>
+  <div id="bloc2">
   {% block title %}{% block page_name %}{% endblock %} Logueado como: {{ownname}} ---- Perfil de: {{guestname}}{% endblock %}
+  </div>
+ </div> 
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -13,7 +23,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 
-
+<!--        <h2><em> Agregar Album </em></h2>-->
 <style>
 *{
   box-sizing: border-box;
@@ -34,6 +44,25 @@
   display: table;
 }
 
+.loadAlbum{
+    box-sizing: border-box;
+    background:green;
+}
+
+
+#bloc1, #bloc2 {
+  max-width: 500px;
+  min-width:700px;
+  display:inline-block;
+  vertical-align: top;
+}
+
+.column {
+  padding: 0 6px;
+  float: left;
+  width: 24.99999%;
+}
+
 </style>
 </head>
 
@@ -43,56 +72,77 @@
 
     <title>Perfil</title>
 
-    
+    <p style="text-align:center;"><img src="../uploads/logo.jpeg" width="150" height="150"></p>
+
+
+
+    <div style="text-align: center;">
+      <input type="button" id="mostrar" name="boton1" value="Agregar Album">
+      <input type="button" id="showUsers" name="boton1" value="Usuarios Registrados">
+    </div>
+
+
+
 
     <form action="" method="post" novalidate>
-        {{ form.hidden_tag() }}
-        <div>
-          <p class="message"><a href="/logout">log out?</a></p>
-          <!--<p class="message"><a href={{route}}>upload</a></p>  -->        
-        </div>
-    </form>
 
+      <div style="text-align: right;" class = "showUsers">
+        <select class = "shwUsers" id='testSelect2' name="Usuarios" onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
 
-    <form action="" method="post" novalidate>
-      {{ form.hidden_tag() }}
-          <select class = "multiselect" id='testSelect1' name="Usuario" multiple = True >
-            
-             <option disabled = "" selected value="0"> Seleccione usuario/s </option>
-                 <optgroup label="Usuarios"> 
-                  {% for i in users %}
-                    <option value={{loop.index}}>{{i}}</option> 
-                  {% endfor %}
-             </optgroup> 
-            
-          </select>
-       
-
-
-        <select name="seguridad">
-         <option selected value="0"> Seleccionar visibilidad </option>
-         <optgroup label="Seguridad"> 
-           <option value="1">Publica</option> 
-           <option value="2">Privada</option> 
-           <option value="3">Protegida</option> 
-         </optgroup> 
+           <option disabled = "" selected value="0"> Ver perfil de </option>
+               <optgroup label="Usuarios"> 
+                {% for i in users %}
+                  <option value="/{{i}}">{{i}}</option> 
+                {% endfor %}
+           </optgroup> 
         </select>
+      </div>
 
-        <input type="text" id="especie" name="especie" placeholder="especie"/>
-        <input type="submit" name="agregar" id="agregar" value="Agregar"/>
+      <div class="loadAlbum">
 
+          {{ form.hidden_tag() }}
+            <select class = "multiselect" id='testSelect1' name="Usuario" multiple = True >
+               <!--<option disabled = "" selected value="0"> Seleccione usuario/s </option>-->
+                   <optgroup label="Usuarios"> 
+                    {% for i in users %}
+                      <option value={{loop.index}}>{{i}}</option> 
+                    {% endfor %}
+               </optgroup> 
+              
+            </select>
+    
+         <select name="seguridad">
+           <option selected value="0"> Seleccionar visibilidad </option>
+           <optgroup label="Seguridad"> 
+             <option value="1">Publica</option> 
+             <option value="2">Privada</option> 
+             <option value="3">Protegida</option> 
+           </optgroup> 
+          </select>
+
+        <p>
+          <input type="text" id="especie" name="especie" placeholder="especie"/>
+          <input type="submit" name="agregar" id="agregar" value="Agregar"/>
+        </p>
+      
+        
+        <p style = "padding-left: 40px;">&nbsp;</p>
+          
+      </div>
+        <!--IMAGENES-->
         <div class="row">
         {% for i in images %}
             {% set j = j + 1 %}
             <div class = "column">
-            <p><input type="image" id="botondeenvio" name={{loop.index}}  src="{{url_for('get_file' , filename=i[loop.index-1][0])}}" alt="Enviar formulario" style="width:300px;height:300px;"></p>
+            
+            <p style = "padding-left: 40px;"><input type="image" id="botondeenvio" name={{loop.index}}  src="{{url_for('get_file' , filename=i[loop.index-1][0])}}" alt=" Planta sin fotos!" style="width:300px;height:250px;border-radius: 20px"></p>
 
             <!--{{ form.loop }}
             {{ loop.index }}-->
-
+            <p style = "padding-left: 40px;"><strong><em>{{ especies[loop.index - 1] }}</em></strong><p>
             <p><input type="hidden" name={{loop.index}} id=loop.index/></p>
             
-            <p>{{ especies[loop.index - 1] }}<p>
+            
             </div>
         {% endfor %}
       </div>
@@ -110,9 +160,39 @@
 <script>
 $(document).ready(function(){
   $(".multiselect").select2({
-    placeholder: "seleccione usuarios",
+    placeholder: "usuarios",
     tags: true,
     tokenSeparators: ['/',',',';'," "] 
   })
 })
 </script>
+
+<script>
+  $(document).ready(function(){
+    $("#showUsers").click(function(){ 
+      if ($('.showUsers').is (':hidden'))
+        $('.showUsers').show("swing");
+      else
+        $('.showUsers').hide("linear");
+     });
+
+    $("#mostrar").click(function(){ 
+      if ($('.loadAlbum').is (':hidden'))
+        $('.loadAlbum').show("swing");
+      else
+        $('.loadAlbum').hide("linear");
+     });
+  });
+</script>
+<!--
+        if ($('#content').is (':hidden'))
+            $('#content').show();
+        else
+            $('#content').hide();
+
+    $("#mostrar").click(function(){ 
+      $('.loadAlbum').show("swing");
+     });
+    $("#ocultar").click(function(){
+      $('.loadAlbum').hide("linear");
+    });-->

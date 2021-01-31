@@ -379,7 +379,7 @@ def timelapse(userOwn, user, planta):
       imagen = ""
     return redirect(url_for('upload', name = usr, especie = indicePlanta, indiceimagen = indiceImagen, indicetotal = len(album1) - 1))
   
-  return render_template('timelapse.html', route = userOwn + "/upload", images = album1, Informacion =planta + '/' + str(aux2)  + '/' + userOwn, PlantData = plantData, PlantDataRows = len(plantData))
+  return render_template('timelapse.html', route = userOwn + "/upload", images = album1, Informacion =planta + '/' + str(aux2)  + '/' + userOwn, myperfil = userOwn, guestperfil = user,PlantData = plantData, PlantDataRows = len(plantData))
 
 
 @app.route('/tasks', methods=['Post'])
