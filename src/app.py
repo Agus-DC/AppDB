@@ -72,6 +72,18 @@ def index():
 
 
 
+def LoadPlantas(user, userOwner):
+  arrayPlanta = []
+  j = 0
+  for b in user.planta: #planta
+    planta = Planta.get_Planta(b) 
+    if ExcGroup.accesible(planta, userOwner):
+      print(" A esta planta pude acceder: ", planta)
+      arrayPlanta.insert(j, planta.especie)  
+    else:
+      arrayPlanta.insert(j, None)
+  return arrayPlanta
+
 
 
 @app.route('/<name>', methods=['GET', 'POST'])
@@ -102,13 +114,7 @@ def profile(name):
 
     if user1 is not None:
 
-      for b in user1.planta: #planta
-        planta = Planta.get_Planta(b) 
-        if ExcGroup.accesible(planta, userOwner):
-          print(" A esta planta pude acceder: ", planta)
-          arrayPlanta.insert(j, planta.especie)  
-        else:
-          arrayPlanta.insert(j, None)
+      arrayPlanta = LoadPlantas(user1, userOwner)
       
       arrayPlanta.reverse()
       print("Las plantas que hay para el usuario son: ", arrayPlanta)
@@ -210,23 +216,24 @@ def profile(name):
                 #print("De la especie: ", planta1[aux2].get_PlantaName())
                 print("Del usuario: ", name)
                 break
-              aux2 = aux2 + 1
+              aux2 += 1
               aux = 0
-              #print("EL valor del contador es: ",aux2)
+              print("EL valor del contador es: ",aux2)
               #print(albunesTotales[aux2][0])
               #print(albunesTotales[aux2][1])
+              #print(albunesTotales[0][aux2-1])
             aux2 = aux2 - 1
-
+            print("Madre mia",planta1[aux2].especie)
             plantData = []
             plantData = PlantPlot.get_data(planta1[aux2])
             
             print("La info que tengo, cuando se presiona la imagen: ", plantData)
 
-            return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][aux2], Informacion =planta1[aux2].get_PlantaName() + '/' + str(aux2)  + '/' + name, PlantData = plantData, PlantDataRows = len(plantData))
+            #return render_template('timelapse.html', route = name + "/upload", images = albunesTotales[0][aux2], Informacion =planta1[aux2].get_PlantaName() + '/' + str(aux2)  + '/' + name, PlantData = plantData, PlantDataRows = len(plantData))
 
+            return redirect(url_for('timelapse', userOwn = ownname, user = guestname, planta = planta1[aux2].especie))
 
-
-
+      '''
         #Al presionar borrar en una imagen
         if (request.method == 'GET' and request.args.get('borrar') != None and isOwner):
           print("---------------------------------------------------------------GET")
@@ -270,17 +277,110 @@ def profile(name):
             indiceImagen = 0
             imagen = ""
           return redirect(url_for('upload', name = usr, especie = indicePlanta, indiceimagen = indiceImagen, indicetotal = len(album1[indicePlanta]) - 1))
-        
-        return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = list(filter(None, arrayPlanta)), ownname = session [ 'username' ], guestname = name, users = usuario.get_users_name())
+        '''
+      return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = list(filter(None, arrayPlanta)), ownname = session [ 'username' ], guestname = name, users = usuario.get_users_name())
     return "usuario no encontrado"
 
 
+#'''
+@app.route("/<userOwn>/<user>/<planta>/")
+def timelapse(userOwn, user, planta):
+
+  userOwner = usuario.get_user(userOwn)
+  user1 = usuario.get_user(user)
+  isOwner =  True if (userOwn == user) else False
+  
+  arrayPlanta = []
+  arrayPlanta = LoadPlantas(user1, userOwner)
+  
+  #i = 0
+  aux2 = 0
+  
+  
+
+  planta1 = Planta.get_plantaByNameAndUser(planta, userOwn)
+
+  print("planta wey",planta1)
+
+  if(planta1 == None):
+    return "Planta no visible"  
+
+  if(userOwn != session [ 'username' ]): 
+    return "Debe iniciar sesion"
+
+  #for z in arrayPlanta:
+  album1 = Album.get_images(planta1)
+  #  i+=1
+
+  plantData = []
+  plantData = PlantPlot.get_data(planta1)
+
+  print("ALBUM1 ES: ", album1)
+  print("LAS PLANTAS SON: ", arrayPlanta)
+
+  for ii in arrayPlanta:
+    aux = str(aux2) + '.' + 'x'
+    if(ii == planta):   
+      #print("PRESIONE IMAGEN Numero ", aux)
+      break
+    aux2 = aux2 + 1
+    aux = 0
 
 
 
-#def LoadExcUsers(UsersIndex[], Users[]):
-  #UsersIndex[] = request.form.getlist('Usuario')
-  #Users[] = usuario.get_users()
+
+
+
+#Al presionar borrar en una imagen
+
+  if (request.method == 'GET' and request.args.get('borrar') != None and isOwner):
+    print("---------------------------------------------------------------GET-timelapse-Borrar")
+    
+    indicePlanta = int(request.args.get('informacion').split('/')[1])
+    especie = request.args.get('informacion').split('/')[0]
+    usr = request.args.get('informacion').split('/')[2]
+    print("indice planta ", indicePlanta)
+    print("especie ", especie)
+    print("user ", usr )
+
+    if(request.args.get('borrar') != "NaN"):
+      indiceImagen = int(request.args.get('borrar').split('/')[0]) - 1
+      imagen = request.args.get('borrar').split('/')[2]
+    else:
+      indiceImagen = 0
+      imagen = ""
+    
+    print("indiceimagen ", indiceImagen)
+    print("Imagen ", imagen)  
+    print("Indice imagen total", len(album1))
+
+    print(user1.planta[int(indicePlanta)])
+    Album.delete_image(len(album1) - 1, indiceImagen, planta1)
+
+    #return render_template('timelapse.html', route = userOwn + "/upload", images = album1, Informacion =planta + '/' + str(aux2)  + '/' + userOwn, PlantData = plantData, PlantDataRows = len(plantData))
+    return redirect(url_for('timelapse', userOwn = userOwn, user = user, planta = especie))
+
+
+
+
+
+#Al presionar insertar en una imagen
+
+  if (request.method == 'GET' and request.args.get('insertar') != None and isOwner): 
+    print("VIKINGO",request.args.get('insertar'))
+    indicePlanta = int(request.args.get('informacion').split('/')[1])
+    especie = request.args.get('informacion').split('/')[0]
+    usr = request.args.get('informacion').split('/')[2]
+    if(request.args.get('insertar') != "NaN"):
+      indiceImagen = int(request.args.get('insertar').split('/')[0]) - 1
+      imagen = request.args.get('insertar').split('/')[2]
+    else:
+      indiceImagen = 0
+      imagen = ""
+    return redirect(url_for('upload', name = usr, especie = indicePlanta, indiceimagen = indiceImagen, indicetotal = len(album1) - 1))
+  
+  return render_template('timelapse.html', route = userOwn + "/upload", images = album1, Informacion =planta + '/' + str(aux2)  + '/' + userOwn, PlantData = plantData, PlantDataRows = len(plantData))
+
 
 @app.route('/tasks', methods=['Post'])
 def create_PlantPlot():
@@ -320,10 +420,6 @@ def create_PlantPlot():
 
 def increment():
   return(x)
-
-@app.route("/timelapse/")
-def timelapse():
-  return render_template("timelapse.html", images = images)
 
 
 
@@ -406,7 +502,8 @@ def upload(name, especie, indiceimagen, indicetotal):
 
         album = Album(planta = planta1 ,ruta = UPLOAD_FOLDER, imagename = filename, albumname = especieIngresada, timestamp = time.ctime(), imageid = Album.insert(int(indicetotal), int(indiceimagen), planta1))
 
-        return redirect(url_for("profile", name = session [ 'username' ]))
+        #return redirect(url_for("profile", name = session [ 'username' ]))
+        return redirect(url_for('timelapse', userOwn = name, user = name, planta = especieIngresada))
       return "file not allowed"
     return render_template('upload.html', especie = array)
   return render_template('ingresar.html', form = form, info = info)

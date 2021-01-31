@@ -3,6 +3,17 @@
 <!--<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">-->
 <head>
   {% block title %}{% block page_name %}{% endblock %} Logueado como: {{ownname}} ---- Perfil de: {{guestname}}{% endblock %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+
 <style>
 *{
   box-sizing: border-box;
@@ -42,13 +53,12 @@
         </div>
     </form>
 
+
     <form action="" method="post" novalidate>
       {{ form.hidden_tag() }}
-
-
-          <select name="Usuario" multiple = True >
+          <select class = "multiselect" id='testSelect1' name="Usuario" multiple = True >
             
-             <option selected value="0"> Seleccione usuario/s </option>
+             <option disabled = "" selected value="0"> Seleccione usuario/s </option>
                  <optgroup label="Usuarios"> 
                   {% for i in users %}
                     <option value={{loop.index}}>{{i}}</option> 
@@ -57,6 +67,7 @@
             
           </select>
        
+
 
         <select name="seguridad">
          <option selected value="0"> Seleccionar visibilidad </option>
@@ -96,11 +107,12 @@
 
 
 
-<!--
-<script type="text/javascript">
-  $(document).ready(function() {
-      $('#play').click(function(){    
-          album.play();    
-      });
-
--->      
+<script>
+$(document).ready(function(){
+  $(".multiselect").select2({
+    placeholder: "seleccione usuarios",
+    tags: true,
+    tokenSeparators: ['/',',',';'," "] 
+  })
+})
+</script>

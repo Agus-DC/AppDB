@@ -111,11 +111,18 @@ class Planta(SO.SQLObject):
     usuario    = SO.RelatedJoin('usuario')
 
     def check_plantaName(especie, usr):
-        flag = 0
         for a in Planta.selectBy(especie=especie):
             if(a.usuario[0] == usr):
                 print(a.especie)
                 return ''
+        return None   
+
+    def get_plantaByNameAndUser(especie, usr):
+        for a in Planta.selectBy(especie=especie):
+            #print("ANTES DE ENCONTRE",a.usuario[0].username)
+            if(a.usuario[0].username == usr):
+                #print("ENCONTRE",a)
+                return a
         return None   
 
 
@@ -208,12 +215,12 @@ class Album(SO.SQLObject):
 
 
         for j in Album.select(orderBy = Album.q.imageid):
-            #print(j.planta.usuario[0])
-            #print(planta.usuario[0])
+            print(j.planta.usuario[0])
+            print(planta.usuario[0])
             if(Album.q.planta==planta and j.albumname == planta.especie and j.planta.usuario[0] == planta.usuario[0]):
                 array.insert(i, j.imagename)
                 i += 1
-        #print(array)        
+        print(array)        
         return array
 
 
@@ -252,6 +259,6 @@ class ExcGroup(SO.SQLObject):
      
         for j in ExcGroup.select():
             if (j.planta == planta and j.usuario[0] == user and planta.permiso == '3') or (planta.permiso == '1'):
-                print("Encontre oro puro2 (*) ",j.usuario)
+                #print("Encontre oro puro2 (*) ",j.usuario)
                 flag = True
         return flag    
