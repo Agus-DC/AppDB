@@ -26,9 +26,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://invitado:invitado@local
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.secret_key = 'cualquier cadena aleatoria'
-
-
 ma = Marshmallow(app)
+PUBLICO = '1'
+PRIVADO = '2'
+PROTEGIDO = '3'
+
 class TaskSchema(ma.Schema):
     class Meta:
         fields = ('id', 'growthStage', 'temperature', 'humidity','ph','elect','lumens', 'username', 'plantname')
@@ -103,7 +105,7 @@ def profile(name):
     aux2 = 0
     parameter = 0 
     p = 0
-
+    route = '/' + name
     ownname = session [ 'username' ]
     guestname = name
     
@@ -167,7 +169,7 @@ def profile(name):
         #Solo hay que agregar la planta si no esta agregada
           especie =request.form['especie']
           permiso = request.form['seguridad']
-          print("---------------------------------------------------------------POST")
+          print("---------------------------------------------------------------POST, especie", especie)
           print(request.form.getlist)
           #si se presiona un album
           
@@ -176,36 +178,37 @@ def profile(name):
             select = request.form.getlist('Usuario')
             
 
-            print("LISTA DE USUARIOS!!",select)
-            print(request.form.get('seguridad'))
-
             ArrayUserSelect = []
             ArrayUserSelect = request.form.getlist('Usuario')
+            #print(ArrayUserSelect) si usuario esta vacio puede que sea publico(poner como solo yo)
 
+            if((Planta.check_plantaName(especie, user1) == None)):
+              if(especie != "" and permiso != '0' and isOwner): #and ArrayUserSelect != []
+                
+                if(permiso == PUBLICO):
+                  planta = Planta(especie = especie, permiso = permiso)
+                  user1.addPlanta(planta)
+                  Exc = ExcGroup(planta = planta)
+                  return redirect(route)
 
-            if(especie != "" and permiso != '0' and ArrayUserSelect != '0' and isOwner):
-              
-              if((Planta.check_plantaName(especie, user1) == None)):
-                planta = Planta(especie = especie, permiso = permiso)
-                user1.addPlanta(planta)
+                if(permiso == PROTEGIDO):
+                  if(ArrayUserSelect != []):
+                    planta = Planta(especie = especie, permiso = permiso)
+                    user1.addPlanta(planta)
+                    Exc = ExcGroup(planta = planta)
+                    for u in ArrayUserSelect:
+                      Exc.addUsuario(usuario.get_users()[int(u) - 1])         
+                    return redirect(route)
+                  else:
+                    info='Debe elegir el/los usuario/s que puedan ver la planta'  
+                    return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = list(filter(None, arrayPlanta)), ownname = session [ 'username' ], guestname = name, users = usuario.get_users_name())
 
-                Exc = ExcGroup(planta = planta)
-
-                for u in ArrayUserSelect:
-                  print("USUARIO NUmeRO: ",usuario.get_users()[int(u) - 1])
-                  Exc.addUsuario(usuario.get_users()[int(u) - 1])         
-
-                info='Planta agregada!'
-              
-
-
-              else:
-                info='Planta already added, retry'
-              return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = list(filter(None, arrayPlanta)), ownname = session [ 'username' ], guestname = name, users = usuario.get_users_name())
+                
             else:
-              info='No fue posible agregar planta'
-              return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1,myfunction = increment, especies = list(filter(None, arrayPlanta)), ownname = session [ 'username' ], guestname = name, users = usuario.get_users_name())
-          
+              info='No fue posible agregar planta!'
+            return render_template('home.html', form=form, info = info, route = name + "/upload", images = albunesTotales, numberImage = len(albunesTotales), indice = indice, j=1, myfunction = increment, especies = list(filter(None, arrayPlanta)), ownname = session [ 'username' ], guestname = name, users = usuario.get_users_name())
+            
+
           else:        
             print("post album")
             for ii in arrayPlanta:
@@ -538,7 +541,6 @@ def log():
       else:
         user = usuario(username = name, email = email, passwo = usuario.set_password(passwor)) 
         info='User register susessfully, login'
-
   return render_template('registro.html', form = form, info = info)
 
 
@@ -563,18 +565,18 @@ if __name__ == "__main__":
     # connection.debug = True
 
     # borro las tablas si ya existian
-    #PlantPlot.dropTable();
-    #ExcGroup.dropTable()
-    #Album.dropTable()
-    #Planta.dropTable()
-    #usuario.dropTable()
+    PlantPlot.dropTable();
+    ExcGroup.dropTable()
+    Album.dropTable()
+    Planta.dropTable()
+    usuario.dropTable()
 
     # creo las tablas
-    #usuario.createTable();
-    #Planta.createTable();
-    #Album.createTable()
-    #ExcGroup.createTable();
-    #PlantPlot.createTable();
+    usuario.createTable();
+    Planta.createTable();
+    Album.createTable()
+    ExcGroup.createTable();
+    PlantPlot.createTable();
     
     ExcGroup()
     Planta(permiso = 'pu')

@@ -258,7 +258,8 @@ class ExcGroup(SO.SQLObject):
         flag = False
      
         for j in ExcGroup.select():
-            if (j.planta == planta and j.usuario[0] == user and planta.permiso == '3') or (planta.permiso == '1'):
-                #print("Encontre oro puro2 (*) ",j.usuario)
+            #print("Encontre oro puro1 (*) ",j.usuario)
+            if ((planta.permiso == '1') or (j.planta == planta and j.usuario[0] == user and planta.permiso == '3')):
+                print("Encontre oro puro2 (*) ",j.usuario)
                 flag = True
         return flag    
